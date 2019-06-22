@@ -1,0 +1,128 @@
+
+<style>
+
+	#overlay {
+    height: 	100vh;
+		overflow: hidden;
+	}
+
+  .absolute {
+    position: absolute;
+  }
+      
+  .fullbleed {
+    top:       0px;
+    right:     0px;
+    bottom:    0px;
+    left:      0px;
+    transform: scale(1, 1);
+  }
+
+  .top-btn {
+    top: 16px;
+  }
+
+  .bottom-btn {
+    bottom: 80px; /* must clear ios bottom nav */
+  }
+
+  .left-btn {
+    left: 16px;
+  }
+
+  .right-btn {
+    right: 16px;
+  }
+ 
+  .center-btn {
+    left:      50%;
+    transform: translate(-50%, 0px);
+  }
+
+  #preview {
+    background-color: transparent;
+  }
+
+  .scale-down {
+    transition: transform 0.4s var(--spriteful-ease);
+    transform:  translate(50%, 50%) scale(0.15, 0.15);
+  }
+
+  paper-icon-button {
+    color: var(--app-accent-color);
+  }
+
+  #capture-btn {
+  	border-radius: 		50%;
+    background-color: var(--app-background-color);
+  }
+
+</style>
+
+<!-- photo capture for evergreen browsers -->
+<app-media-devices id="devices"
+									 devices="{{_devices}}"
+                   kind="[[_kind]]"
+                   selected-device="{{_videoDevice}}">
+</app-media-devices>
+<app-media-stream id="stream"
+									video-constraints="[[_videoConstraints]]"
+                  video-device="[[_videoDevice]]"
+                  stream="{{_stream}}"
+                  active="[[_active]]">
+</app-media-stream>
+<app-media-image-capture id="imageCapture"
+                         fill-light-mode="[[_flash]]"
+                         focus-mode="single-shot"
+                         red-eye-reduction
+                         torch="[[_torch]]"
+                         stream="[[_stream]]"
+                         last-photo="{{_photo}}">
+</app-media-image-capture>
+
+
+<app-overlay id=overlay 
+             prebuilt-animation="from-top"
+             modal>
+  <div slot="content-slot">    
+    <app-media-video id="video"
+                     class="absolute fullbleed"
+                     source="[[_stream]]"
+                     autoplay
+                     mirror="[[_mirror]]"
+                     muted>
+    </app-media-video>
+
+    <iron-image id="preview"
+                class="absolute fullbleed"
+                src="[[_src]]"
+                fade 
+                preload
+                sizing="cover">
+    </iron-image>
+    <paper-icon-button class="absolute top-btn left-btn"
+    									 hidden="[[_hideTorchBtn]]"
+                       on-click="__torchBtnClicked"
+                       icon="app-media-icons:highlight">
+    </paper-icon-button>
+    <paper-icon-button class="absolute top-btn center-btn"
+    									 hidden="[[_hideFlashBtn]]"
+                       on-click="__flashBtnClicked"
+                       icon="[[__computeFlashIcon(_flash)]]">
+    </paper-icon-button>
+    <paper-icon-button class="absolute top-btn right-btn"
+                       on-click="__closeBtnClicked"
+                       icon="app-icons:close">
+    </paper-icon-button>
+    <paper-icon-button class="absolute bottom-btn left-btn"
+    									 hidden="[[_hideSwitchFaceBtn]]"
+                       on-click="__switchFaceBtnClicked"
+                       icon="[[__computeFaceIcon(_cameraFace)]]">
+    </paper-icon-button>
+    <paper-icon-button id="capture-btn"
+                       class="absolute bottom-btn center-btn"
+                       on-click="__captureBtnClicked"
+                       icon="app-media-icons:add-a-photo">
+    </paper-icon-button>
+  </div>
+</app-overlay>

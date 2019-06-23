@@ -1,10 +1,10 @@
 
 <style>
 
-	#overlay {
-    height: 	100vh;
-		overflow: hidden;
-	}
+  #overlay {
+    height:   100vh;
+    overflow: hidden;
+  }
 
   .absolute {
     position: absolute;
@@ -53,7 +53,7 @@
   }
 
   #capture-btn {
-  	border-radius: 		50%;
+    border-radius:    50%;
     background-color: var(--app-background-color);
   }
 
@@ -61,12 +61,12 @@
 
 <!-- photo capture for evergreen browsers -->
 <app-media-devices id="devices"
-									 devices="{{_devices}}"
+                   devices="{{_devices}}"
                    kind="[[_kind]]"
                    selected-device="{{_videoDevice}}">
 </app-media-devices>
 <app-media-stream id="stream"
-									video-constraints="[[_videoConstraints]]"
+                  video-constraints="[[_videoConstraints]]"
                   video-device="[[_videoDevice]]"
                   stream="{{_stream}}"
                   active="[[_active]]">
@@ -76,8 +76,7 @@
                          focus-mode="single-shot"
                          red-eye-reduction
                          torch="[[_torch]]"
-                         stream="[[_stream]]"
-                         last-photo="{{_photo}}">
+                         stream="[[_stream]]">
 </app-media-image-capture>
 
 
@@ -101,12 +100,12 @@
                 sizing="cover">
     </iron-image>
     <paper-icon-button class="absolute top-btn left-btn"
-    									 hidden="[[_hideTorchBtn]]"
+                       hidden="[[_hideTorchBtn]]"
                        on-click="__torchBtnClicked"
                        icon="app-media-icons:highlight">
     </paper-icon-button>
     <paper-icon-button class="absolute top-btn center-btn"
-    									 hidden="[[_hideFlashBtn]]"
+                       hidden="[[_hideFlashBtn]]"
                        on-click="__flashBtnClicked"
                        icon="[[__computeFlashIcon(_flash)]]">
     </paper-icon-button>
@@ -115,7 +114,7 @@
                        icon="app-icons:close">
     </paper-icon-button>
     <paper-icon-button class="absolute bottom-btn left-btn"
-    									 hidden="[[_hideSwitchFaceBtn]]"
+                       hidden="[[_hideSwitchFaceBtn]]"
                        on-click="__switchFaceBtnClicked"
                        icon="[[__computeFaceIcon(_cameraFace)]]">
     </paper-icon-button>

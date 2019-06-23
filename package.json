@@ -1,6 +1,6 @@
 {
   "name": "@spriteful/app-camera",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
   "scripts": {

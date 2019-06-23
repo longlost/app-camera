@@ -363,15 +363,12 @@ class SpritefulAppCamera extends SpritefulElement {
 
 
   async __close() {
-    this._detecting     = false;
-    this._stopDetecting = true;
     await this.$.overlay.close();
     this.__stopVideoPreview();
   }
 
 
   async open() {
-    this._stopDetecting = false;
     await this.$.overlay.open();
     this.__startVideoPreview();
   }

@@ -148,12 +148,19 @@
     "@polymer/iron-flex-layout" "^3.0.0-pre.26"
     "@polymer/polymer" "^3.0.0"
 
-"@polymer/polymer@^3.0.0", "@polymer/polymer@^3.1.0", "@polymer/polymer@^3.2.0":
+"@polymer/polymer@^3.0.0", "@polymer/polymer@^3.1.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@polymer/polymer/-/polymer-3.2.0.tgz#b41fddec4ecac63b12936b93726678d23add7afd"
   integrity sha512-L6uV1oM6T6xbwbVx6t3biG5T2VSSB03LxnIrUd9M2pr6RkHVPFHJ37pC5MUwBAEhkGFJif7eks7fdMMSGZTeEQ==
   dependencies:
     "@webcomponents/shadycss" "^1.8.0"
+
+"@polymer/polymer@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@polymer/polymer/-/polymer-3.3.0.tgz#52a0665ac29654728e8f46e8ee178c02c49efdd0"
+  integrity sha512-rij7suomS7DxdBamnwr/Xa0V5hpypf7I9oYKseF2FWz5Xh2a3wJNpVjgJy1adXVCxqIyPhghsrthnfCt7EblsQ==
+  dependencies:
+    "@webcomponents/shadycss" "^1.9.1"
 
 "@polymer/prism-element@^3.0.0-pre.25":
   version "3.0.1"
@@ -183,13 +190,13 @@
   dependencies:
     "@polymer/iron-iconset-svg" "^3.0.1"
 
-"@spriteful/app-media@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@spriteful/app-media/-/app-media-1.0.0.tgz#d726ccb3f6e41fd6da5b697aea3f15c45c5b216d"
-  integrity sha512-E/xQthUGtunumyeGkCJbiFbyGhZf0mSjyO9GFi4g5FYTp5CEa9cSfERkVuOG90fYvQksewaWCDMwYdReB2ECvA==
+"@spriteful/app-media@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@spriteful/app-media/-/app-media-1.0.1.tgz#7869654c3c8ec8225dc20a0c91d19ddf315bfb56"
+  integrity sha512-ggVKDFV1CDhqu4uq4QVVqrkKNoDmmKZMiWHqA4wAnaATeG6rr8+SKs7MxDwin9ybYTklIg0c3p2mDd6XXc+Q4g==
   dependencies:
     "@polymer/iron-iconset-svg" "^3.0.1"
-    "@polymer/polymer" "^3.2.0"
+    "@polymer/polymer" "^3.3.0"
     "@spriteful/spriteful-element" "^1.0.4"
     "@spriteful/utils" "^1.2.4"
     image-capture "^0.4.0"
@@ -246,7 +253,7 @@
   dependencies:
     "@spriteful/lambda" "^1.3.5"
 
-"@webcomponents/shadycss@^1.8.0":
+"@webcomponents/shadycss@^1.8.0", "@webcomponents/shadycss@^1.9.1":
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/@webcomponents/shadycss/-/shadycss-1.9.1.tgz#d769fbadfa504f11b84caeef26701f89070ec49a"
   integrity sha512-IaZOnWOKXHghqk/WfPNDRIgDBi3RsVPY2IFAw6tYiL9UBGvQRy5R6uC+Fk7qTZsReTJ0xh5MTT8yAcb3MUR4mQ==

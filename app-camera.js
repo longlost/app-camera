@@ -17,7 +17,6 @@ import {
   warn
 }                 from '@spriteful/utils/utils.js';
 import htmlString from './app-camera.html';
-import '@spriteful/app-overlay/app-overlay.js';
 import '@spriteful/app-icons/app-icons.js';
 import '@spriteful/app-media/app-media-icons.js';
 import '@spriteful/app-media/app-media-devices.js';
@@ -25,7 +24,14 @@ import '@spriteful/app-media/app-media-stream.js';
 import '@spriteful/app-media/app-media-video.js';
 import '@spriteful/app-media/app-media-image-capture.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
-import '@polymer/iron-image/iron-image.js';
+
+
+// TODO:
+//      implement pinch to zoom
+
+
+// TODO:
+//      fire an error when the camera cannot be accessed directly (ie. Safari PWA mode)
 
 
 // detect Safari PWA mode
@@ -44,6 +50,11 @@ class SpritefulAppCamera extends SpritefulElement {
 
   static get properties() {
     return {
+
+      noCapture: {
+        type: Boolean,
+        value: false
+      },
 
       _active: {
         type: Boolean,
@@ -130,17 +141,12 @@ class SpritefulAppCamera extends SpritefulElement {
   async connectedCallback() {
     super.connectedCallback();
 
-    // listen(this.$.stream, 'stream-changed',    this.__streamChanged.bind(this));
-    listen(this.$.stream, 'media-stream-error', this.__streamError.bind(this));
-
-    listen(this.$.video, 'metadata-loaded', this.__videoReady.bind(this));
-    listen(this.$.video, 'source-changed', this.__videoSourceChanged.bind(this));
-
+    listen(this.$.stream,       'stream-changed',             this.__streamChanged.bind(this));
+    listen(this.$.stream,       'media-stream-error',         this.__streamError.bind(this));
+    listen(this.$.video,        'metadata-loaded',            this.__videoReady.bind(this));
+    listen(this.$.video,        'source-changed',             this.__videoSourceChanged.bind(this));
     listen(this.$.imageCapture, 'photo-capabilities-changed', this.__photoCapabilitiesChanged.bind(this));
     listen(this.$.imageCapture, 'track-capabilities-changed', this.__trackCapabilitiesChanged.bind(this));
-
-
-    listen(this.$.preview, 'loaded-changed', this.__imgLoadedChanged.bind(this));
   }
 
 
@@ -205,7 +211,7 @@ class SpritefulAppCamera extends SpritefulElement {
 
 
   __devicesChanged(devices) {
-    // console.log('__devicesChanged: ', devices);
+    this.fire('devices-changed', {value: devices});
   }
 
 
@@ -220,21 +226,13 @@ class SpritefulAppCamera extends SpritefulElement {
 
 
   __streamError(event) {
-    console.log('__streamError', event);
-
-    warn('stream error');
+    this.fire('stream-error', {value: event});
   }
 
 
   __streamChanged(event) {
     const {value: stream} = event.detail;
-    if (stream) {
-
-      // message('stream on');
-    }
-    // else {
-    //  message('stream off');
-    // }
+    this.fire('streaming-changed', {value: Boolean(stream)});
   }
 
 
@@ -251,16 +249,6 @@ class SpritefulAppCamera extends SpritefulElement {
 
   __startVideoPreview() {
     this._active = true;
-  }
-
-
-  __resetPreview() {
-    this.$.preview.classList.remove('scale-down');
-  }
-
-
-  __scaleDownPreview() {
-    this.$.preview.classList.add('scale-down');
   }
 
 
@@ -298,29 +286,17 @@ class SpritefulAppCamera extends SpritefulElement {
   }
 
 
-  async __closeBtnClicked() {
-    try {
-      await this.clicked();
-      this.__close();
-    }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
-  }
-
-
   async __switchFaceBtnClicked() {
     try {
       await this.clicked();
       if (!this._devices || this._devices.length < 2) { return; }
       if (this._cameraFace === 'user') {
-        this._cameraFace = 'environment';
+        this._cameraFace       = 'environment';
         this._videoConstraints = {facingMode: 'environment'};
         this.$.devices.selectNextDevice();
       }
       else {
-        this._cameraFace = 'user';        
+        this._cameraFace       = 'user';        
         this._videoConstraints = {facingMode: 'user'};
         this.$.devices.selectPreviousDevice();
       }
@@ -332,28 +308,16 @@ class SpritefulAppCamera extends SpritefulElement {
   }
 
 
-
-  __imgLoadedChanged(event) {
-    if (event.detail.value) {
-      window.URL.revokeObjectURL(this._src);
-    }
-  }
-
-
   __videoReady() {
-    fire('video-ready');
+    this.fire('video-ready');
   }
 
 
   async __captureBtnClicked() {
     try {
       await this.clicked();
-      this.__resetPreview();
-      const blob = await this.$.imageCapture.takePhoto();
-      this._src = window.URL.createObjectURL(blob);
-      this.__stopVideoPreview();
-      this.__startVideoPreview();
-      this.__scaleDownPreview();
+      const blob = await this.takePhoto();
+      this.fire('photo-captured', {value: blob});
     }
     catch (error) {
       if (error === 'click debounced') { return; }
@@ -361,21 +325,24 @@ class SpritefulAppCamera extends SpritefulElement {
     }
   }
 
-
-  async __close() {
-    await this.$.overlay.close();
-    this.__stopVideoPreview();
+  // returns a promise that resolves to an ImageBitmap
+  grabFrame() {
+    return this.$.imageCapture.grabFrame();
   }
 
 
-  async open() {
-    await this.$.overlay.open();
+  start() {
     this.__startVideoPreview();
   }
 
 
-  close() {
-    return this.__close();  
+  stop() {
+    this.__stopVideoPreview();
+  }
+
+  // returns promise that resolves to an image blob
+  takePhoto() {
+    return this.$.imageCapture.takePhoto();
   }
 
 }

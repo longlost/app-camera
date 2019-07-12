@@ -1,21 +1,15 @@
 
 <style>
 
-  #overlay {
-    height:   100vh;
-    overflow: hidden;
+  :host {
+    display:  block;
+    height:   100%;
+    position: relative;
+    --button-color: var(--app-accent-color);
   }
 
   .absolute {
     position: absolute;
-  }
-      
-  .fullbleed {
-    top:       0px;
-    right:     0px;
-    bottom:    0px;
-    left:      0px;
-    transform: scale(1, 1);
   }
 
   .top-btn {
@@ -39,27 +33,18 @@
     transform: translate(-50%, 0px);
   }
 
-  #preview {
-    background-color: transparent;
-  }
-
-  .scale-down {
-    transition: transform 0.4s var(--spriteful-ease);
-    transform:  translate(50%, 50%) scale(0.15, 0.15);
-  }
-
   paper-icon-button {
-    color: var(--app-accent-color);
+    color: var(--button-color);
   }
 
   #capture-btn {
-    border-radius:    50%;
-    background-color: var(--app-background-color);
+    height: 64px;
+    width:  64px;
   }
 
 </style>
 
-<!-- photo capture for evergreen browsers -->
+<!-- video feed and photo capture for evergreen browsers -->
 <app-media-devices id="devices"
                    devices="{{_devices}}"
                    kind="[[_kind]]"
@@ -76,52 +61,35 @@
                          focus-mode="single-shot"
                          red-eye-reduction
                          torch="[[_torch]]"
-                         stream="[[_stream]]">
+                         stream="[[_stream]]"
+                         last-photo="{{_photo}}">
 </app-media-image-capture>
 
-
-<app-overlay id=overlay 
-             prebuilt-animation="from-top"
-             modal>
-  <div slot="content-slot">    
-    <app-media-video id="video"
-                     class="absolute fullbleed"
-                     source="[[_stream]]"
-                     autoplay
-                     mirror="[[_mirror]]"
-                     muted>
-    </app-media-video>
-
-    <iron-image id="preview"
-                class="absolute fullbleed"
-                src="[[_src]]"
-                fade 
-                preload
-                sizing="cover">
-    </iron-image>
-    <paper-icon-button class="absolute top-btn left-btn"
-                       hidden="[[_hideTorchBtn]]"
-                       on-click="__torchBtnClicked"
-                       icon="app-media-icons:highlight">
-    </paper-icon-button>
-    <paper-icon-button class="absolute top-btn center-btn"
-                       hidden="[[_hideFlashBtn]]"
-                       on-click="__flashBtnClicked"
-                       icon="[[__computeFlashIcon(_flash)]]">
-    </paper-icon-button>
-    <paper-icon-button class="absolute top-btn right-btn"
-                       on-click="__closeBtnClicked"
-                       icon="app-icons:close">
-    </paper-icon-button>
-    <paper-icon-button class="absolute bottom-btn left-btn"
-                       hidden="[[_hideSwitchFaceBtn]]"
-                       on-click="__switchFaceBtnClicked"
-                       icon="[[__computeFaceIcon(_cameraFace)]]">
-    </paper-icon-button>
-    <paper-icon-button id="capture-btn"
-                       class="absolute bottom-btn center-btn"
-                       on-click="__captureBtnClicked"
-                       icon="app-media-icons:add-a-photo">
-    </paper-icon-button>
-  </div>
-</app-overlay>
+  
+<app-media-video id="video"
+                 autoplay
+                 source="[[_stream]]"
+                 mirror="[[_mirror]]"
+                 muted>
+</app-media-video>
+<paper-icon-button class="absolute top-btn left-btn"
+                   hidden="[[_hideTorchBtn]]"
+                   on-click="__torchBtnClicked"
+                   icon="app-media-icons:highlight">
+</paper-icon-button>
+<paper-icon-button class="absolute top-btn center-btn"
+                   hidden="[[_hideFlashBtn]]"
+                   on-click="__flashBtnClicked"
+                   icon="[[__computeFlashIcon(_flash)]]">
+</paper-icon-button>
+<paper-icon-button class="absolute bottom-btn left-btn"
+                   hidden="[[_hideSwitchFaceBtn]]"
+                   on-click="__switchFaceBtnClicked"
+                   icon="[[__computeFaceIcon(_cameraFace)]]">
+</paper-icon-button>
+<paper-icon-button id="capture-btn"
+                   class="absolute bottom-btn center-btn"
+                   hidden="[[noCapture]]"
+                   on-click="__captureBtnClicked"
+                   icon="app-media-icons:radio-button-checked">
+</paper-icon-button>

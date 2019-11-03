@@ -1,5 +1,5 @@
 {
-  "name": "@spriteful/app-camera",
+  "name": "@longlost/app-camera",
   "version": "1.0.2",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
@@ -8,30 +8,30 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spriteful/app-camera.git"
+    "url": "git+https://github.com/longlost/app-camera.git"
   },
-  "author": "Spriteful spritefuldev@gmail.com",
+  "author": "Longlost Dev longlostdev@gmail.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/spriteful/app-camera/issues"
+    "url": "https://github.com/longlost/app-camera/issues"
   },
-  "homepage": "https://github.com/spriteful/app-camera#readme",
+  "homepage": "https://github.com/longlost/app-camera#readme",
   "dependencies": {
+    "@longlost/app-element": "^1.0.4",
+    "@longlost/app-icons": "^1.0.6",
+    "@longlost/app-media": "^1.0.1",
+    "@longlost/app-overlay": "^1.0.0",
+    "@longlost/utils": "^1.2.4",
     "@polymer/iron-image": "^3.0.2",
     "@polymer/paper-icon-button": "^3.0.2",
-    "@polymer/polymer": "^3.3.0",
-    "@spriteful/app-icons": "^1.0.6",
-    "@spriteful/app-media": "^1.0.1",
-    "@spriteful/app-overlay": "^1.0.0",
-    "@spriteful/spriteful-element": "^1.0.4",
-    "@spriteful/utils": "^1.2.4"
+    "@polymer/polymer": "^3.3.0"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.1.0",
     "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.2.10",
+    "@webcomponents/webcomponentsjs": "^2.3.0",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.2",
     "wct-mocha": "^1.0.1"
   }
 }

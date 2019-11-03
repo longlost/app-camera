@@ -7,22 +7,22 @@
  * @demo demo/index.html
  */
 import {
-  SpritefulElement, 
+  AppElement, 
   html
-}                 from '@spriteful/spriteful-element/spriteful-element.js';
+}                 from '@longlost/app-element/app-element.js';
 import {
   listen, 
   listenOnce, 
   message, 
   warn
-}                 from '@spriteful/utils/utils.js';
+}                 from '@longlost/utils/utils.js';
 import htmlString from './app-camera.html';
-import '@spriteful/app-icons/app-icons.js';
-import '@spriteful/app-media/app-media-icons.js';
-import '@spriteful/app-media/app-media-devices.js';
-import '@spriteful/app-media/app-media-stream.js';
-import '@spriteful/app-media/app-media-video.js';
-import '@spriteful/app-media/app-media-image-capture.js';
+import '@longlost/app-icons/app-icons.js';
+import '@longlost/app-media/app-media-icons.js';
+import '@longlost/app-media/app-media-devices.js';
+import '@longlost/app-media/app-media-stream.js';
+import '@longlost/app-media/app-media-video.js';
+import '@longlost/app-media/app-media-image-capture.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 
 
@@ -40,7 +40,7 @@ import '@polymer/paper-icon-button/paper-icon-button.js';
 // }
 
 
-class SpritefulAppCamera extends SpritefulElement {
+class AppCamera extends AppElement {
   static get is() { return 'app-camera'; }
 
   static get template() {
@@ -347,4 +347,4 @@ class SpritefulAppCamera extends SpritefulElement {
 
 }
 
-window.customElements.define(SpritefulAppCamera.is, SpritefulAppCamera);
+window.customElements.define(AppCamera.is, AppCamera);

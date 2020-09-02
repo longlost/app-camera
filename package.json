@@ -17,21 +17,23 @@
   },
   "homepage": "https://github.com/longlost/app-camera#readme",
   "dependencies": {
-    "@longlost/app-element": "^1.0.4",
-    "@longlost/app-icons": "^1.0.6",
-    "@longlost/app-media": "^1.0.1",
-    "@longlost/app-overlay": "^1.0.0",
-    "@longlost/utils": "^1.2.4",
-    "@polymer/iron-image": "^3.0.2",
+    "@longlost/app-element": "^2.0.0",
+    "@longlost/app-file-system": "^2.0.0",
+    "@longlost/app-icons": "^1.0.12",
+    "@longlost/app-images": "^1.8.0",
+    "@longlost/app-media": "^2.0.0",
+    "@longlost/app-overlays": "^1.3.6",
+    "@longlost/pinch-to-zoom": "^1.0.0",
+    "@longlost/utils": "^2.0.0",
     "@polymer/paper-icon-button": "^3.0.2",
-    "@polymer/polymer": "^3.3.0"
+    "@polymer/polymer": "^3.4.1"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.1.0",
     "@polymer/test-fixture": "^4.0.2",
-    "@webcomponents/webcomponentsjs": "^2.3.0",
+    "@webcomponents/webcomponentsjs": "^2.4.4",
     "chai": "^4.2.0",
-    "mocha": "^6.2.2",
-    "wct-mocha": "^1.0.1"
+    "mocha": "^8.1.3",
+    "wct-mocha": "^1.1.0"
   }
 }

@@ -16,11 +16,16 @@ import {
 } from '@longlost/app-element/app-element.js';
 
 import {
+  clamp
+} from '@longlost/lambda/lambda.js';
+
+import {
   consumeEvent,
   listenOnce, 
   message,
   schedule,
-  warn
+  warn,
+  wait
 } from '@longlost/utils/utils.js';
 
 import htmlString from './app-camera.html';
@@ -30,17 +35,9 @@ import '@longlost/app-media/app-media-devices.js';
 import '@longlost/app-media/app-media-stream.js';
 import '@longlost/app-media/app-media-video.js';
 import '@longlost/app-media/app-media-image-capture.js';
+import '@longlost/app-shared-styles/app-shared-styles.js';
+import '@longlost/pinch-to-zoom/pinch-to-zoom.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
-
-
-// TODO:
-//      implement pinch to zoom
-
-
-// TODO:
-//      fire an error when the camera cannot be accessed directly (ie. User rejects)
-
-
 
 
 class AppCamera extends AppElement {
@@ -53,6 +50,21 @@ class AppCamera extends AppElement {
 
   static get properties() {
     return {
+
+      /**
+        * If true, the video will be scaled so that the source video is
+        * flush with the edge of the element, but fully contained by it. 
+        *
+        * If false (the default), the video will be scaled to the smallest size 
+        * that is at full-bleed with respect to the element's bounding box.
+        *
+        * Both settings preserve the aspect ratio of the source video.
+        *
+        **/
+      contain: {
+        type: Boolean,
+        value: false
+      },
 
       // Set which camera to initialize with.
       // NOTE: Many devices, such as laptops/pc do not have an 'environment' facing camera.
@@ -77,16 +89,28 @@ class AppCamera extends AppElement {
         value: 'user' // Or 'environment'.
       },
 
+      // Function used to clamp the scale value from
+      // `pinch-to-zoom` to set the `_zoom`.
+      _clamper: {
+        type: Object,
+        computed: '__computeClamper(_zoomMin, _zoomMax)'
+      },
+
       _devices: Array,
+
+      _faceBtnIcon: {
+        type: String,
+        computed: '__computeFaceBtnIcon(_cameraFace)'
+      },
 
       _flash: {
         type: String,
         value: 'auto' // Or 'off', or 'flash'.
       },
 
-      _flashIcon: {
+      _flashBtnIcon: {
         type: String,
-        computed: '__computeFlashIcon(_flash)'
+        computed: '__computeFlashBtnIcon(_flash)'
       },
 
       _hideFlashBtn: {
@@ -113,10 +137,15 @@ class AppCamera extends AppElement {
         computed: '__computeHideSwitchFaceBtn(_trackCapabilities.facingMode)'
       },
 
-      _kind: {
-        type: String,
-        value: 'videoinput'
-      },
+      // Must ignore the first change in the selected video device
+      // since fetching it happens after the stream starts and thus
+      // is the same device as what is already being used.
+      // Only update the device when switching to a new one.
+      _initialVideoDeviceUsed: Boolean,
+
+      // This MUST be set AFTER the stream has started for iOS Safari
+      // to report the correct number of available devices.
+      _kind: String,
 
       _mirror: {
         type: Boolean,
@@ -125,6 +154,10 @@ class AppCamera extends AppElement {
       },
 
       _photoCapabilities: Object,
+
+      // `pinch-to-zoom` output which is clamped to compute
+      // the `_zoom` factor.
+      _scale: Number,
 
       _stream: Object,
 
@@ -144,7 +177,18 @@ class AppCamera extends AppElement {
 
       _zoom: {
         type: Number,
-        value: 1 // Zoom ratio val:1 (ie 4:1 or 1:1 -> no zoom).
+        value: 1, // Zoom ratio val:1 (ie 4:1 or 1:1 -> no zoom).
+        computed: '__computeZoom(_clamper, _scale)'
+      },
+
+      _zoomMax: {
+        type: Number,
+        computed: '__computeZoomMax(_photoCapabilities.zoom, _trackCapabilities.zoom)'
+      },
+
+      _zoomMin: {
+        type: Number,
+        computed: '__computeZoomMin(_photoCapabilities.zoom, _trackCapabilities.zoom)'
       }
 
     };
@@ -152,7 +196,8 @@ class AppCamera extends AppElement {
 
 
   static get observers() {
-    return [
+    return [    
+      '__clamperChanged(_clamper)',
       '__devicesChanged(_devices)'
     ];
   }
@@ -164,6 +209,18 @@ class AppCamera extends AppElement {
     if (this.defaultCamera === 'user' || this.defaultCamera === 'environment') {
       this._cameraFace = this.defaultCamera;
     }
+  }
+
+
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.__setupPinchToZoom();
+  }
+
+
+  __computeClamper(min, max) {
+    return clamp(min, max);
   }
 
 
@@ -183,19 +240,9 @@ class AppCamera extends AppElement {
   }
 
 
-
-
-
   __computeHideLightingBtns(hideFlash, hideTorch) {
-    // return hideFlash && hideTorch;
-
-    return false;
-
-
+    return hideFlash && hideTorch;
   }
-
-
-
 
 
   __computeHideTorchBtn(torch) {
@@ -210,7 +257,7 @@ class AppCamera extends AppElement {
 
     if (Array.isArray(facingMode)) {
 
-      if (!facingMode.length) {
+      if (facingMode.length === 0) {
         return true;
       }
     }
@@ -219,7 +266,7 @@ class AppCamera extends AppElement {
   }
 
 
-  __computeFlashIcon(flash) {
+  __computeFlashBtnIcon(flash) {
     if (!flash) { return ''; }
 
     if (flash === 'auto') {
@@ -234,7 +281,7 @@ class AppCamera extends AppElement {
   }
 
 
-  __computeFaceIcon(cameraFace) {
+  __computeFaceBtnIcon(cameraFace) {
     if (!cameraFace) { return ''; }
 
     if (cameraFace === 'user') {
@@ -263,8 +310,70 @@ class AppCamera extends AppElement {
   }
 
 
+  __computeZoom(clamper, scale) {
+    if (typeof clamper !== 'function' || typeof scale !== 'number') { return; }
+
+    return clamper(scale);
+  }
+
+
+  __computeZoomMax(photoZoom, trackZoom) {
+    if (trackZoom) {
+      const {max} = trackZoom;
+
+      return max > 0 ? max : 4;
+    }
+
+    if (photoZoom) {
+      const {max} = photoZoom;
+
+      return max > 0 ? max : 4;
+    }
+
+    return 4;
+  }
+
+
+  __computeZoomMin(photoZoom, trackZoom) {
+    if (trackZoom) {
+      const {min} = trackZoom;
+
+      return typeof min === 'number' ? min : 1;
+    }
+
+    if (photoZoom) {
+      const {min} = photoZoom;
+
+      return typeof min === 'number' ? min : 1;
+    }
+
+    return 1;
+  }
+
+
+  __clamperChanged(fn) {
+    if (!fn) { return; }
+    
+    // Reset the pinch-to-zoom element.
+    this.__setupPinchToZoom();
+  }
+
+
   __devicesChanged(devices) {
     this.fire('app-camera-devices-changed', {value: devices});
+  }
+
+
+  __setupPinchToZoom() {
+    this._scale = 1;
+
+    this.$.pinchToZoom.setTransform({
+      scale: 1,
+      x: 0,
+      y: 0,
+      // Fire a 'change' event if values are different to current values
+      allowChangeEvent: true
+    });
   }
 
 
@@ -277,6 +386,15 @@ class AppCamera extends AppElement {
 
   __devicesSelectedChangedHandler(event) {
     consumeEvent(event);
+
+    // Ignore the initial value since it is
+    // the same device that is already in use,
+    // no need to start a new stream.
+    if (!this._initialVideoDeviceUsed) {
+      this._initialVideoDeviceUsed = true;
+
+      return;
+    }
 
     this._videoDevice = event.detail.value;
   }
@@ -310,6 +428,14 @@ class AppCamera extends AppElement {
 
     const {value: stream} = event.detail;
 
+    // iOS Safari fix!
+    // MUST get devices AFTER the stream has started
+    // in order for the browser to report the correct
+    // number of available devices.
+    if (stream && !this._kind) {
+      this._kind = 'videoinput';
+    }
+
     this._stream = stream;
 
     this.fire('app-camera-streaming-changed', {value: Boolean(stream)});
@@ -323,11 +449,19 @@ class AppCamera extends AppElement {
   }
 
 
-  // inop
   __sourceChangedHandler(event) {
     consumeEvent(event);
 
-    // console.log('__videoSourceChanged: ', event);
+    this.fire('app-camera-source-changed', event.detail);
+  }
+
+
+  async __pinchToZoomChangeHandler(event) {
+    consumeEvent(event);
+
+    await schedule();
+
+    this._scale = event.detail.scale;
   }
 
 
@@ -383,6 +517,12 @@ class AppCamera extends AppElement {
 
       if (!this._devices || this._devices.length < 2) { return; }
 
+      if (this._stream) {
+        this.$.video.classList.remove('show');
+
+        await wait(250);
+      }
+
       if (this._cameraFace === 'user') {
         this._cameraFace = 'environment';
 
@@ -404,7 +544,9 @@ class AppCamera extends AppElement {
   async __metadataLoadedHandler(event) {
     consumeEvent(event);
 
-    await schedule();
+    this.$.video.classList.add('show');
+
+    await wait(250);
 
     this.fire('app-camera-ready');
   }

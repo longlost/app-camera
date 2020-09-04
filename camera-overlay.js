@@ -35,9 +35,10 @@
 
 
 import {AppElement, html} from '@longlost/app-element/app-element.js';
-import {consumeEvent} 		from '@longlost/utils/utils.js';
+import {consumeEvent}     from '@longlost/utils/utils.js';
 import htmlString         from './camera-overlay.html';
 import '@longlost/app-overlays/app-overlay.js';
+import '@longlost/app-shared-styles/app-shared-styles.js';
 import './app-camera.js';
 
 
@@ -52,15 +53,17 @@ class CameraOverlay extends AppElement {
   static get properties() {
     return {
 
-    	// Set which camera to initialize with.
-      // NOTE: Many devices, such as laptops/pc do not have an 'environment' facing camera.
+      // Set which camera to initialize with.
+      //
+      // NOTE: Many devices, such as laptops/pc do not 
+      //       have an 'environment' facing camera.
       defaultCamera: {
         type: String,
         value: 'user' // Or 'environment'. 
       },
 
-    	// Hide the camera capture button.
-    	noCapture: {
+      // Hide the camera capture button.
+      noCapture: {
         type: Boolean,
         value: false
       },
@@ -72,9 +75,9 @@ class CameraOverlay extends AppElement {
 
 
   static get observers() {
-  	return [
-  		'__streamingChanged(_streaming)'
-  	];
+    return [
+      '__streamingChanged(_streaming)'
+    ];
   }
 
 
@@ -84,24 +87,24 @@ class CameraOverlay extends AppElement {
 
 
   __permissionDeniedHandler(event) {
-  	consumeEvent(event);
+    consumeEvent(event);
 
-  	// TODO:
-  	//
-  	// 		Show an explainer modal asking the user
-  	// 		to grant access to the device's camera.
+    // TODO:
+    //
+    //    Show an explainer modal asking the user
+    //    to grant access to the device's camera.
   }
 
 
   __streamingChangedHandler(event) {
-  	consumeEvent(event);
+    consumeEvent(event);
 
     this._streaming = event.detail.value;
   }
 
 
   __reset() {
-  	this.stop();
+    this.stop();
   }
 
 
@@ -119,14 +122,14 @@ class CameraOverlay extends AppElement {
 
   // Returns a promise that resolves to an ImageBitmap.
   grabFrame() {
-  	return this.$.cam.grabFrame();
+    return this.$.cam.grabFrame();
   }
 
 
   async open() {
     await this.$.overlay.open();
 
-  	this.start();
+    this.start();
   }
 
   // Initialize video stream.

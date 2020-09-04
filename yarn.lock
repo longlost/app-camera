@@ -466,10 +466,10 @@
     leaflet "^1.6.0"
     leaflet.tilelayer.colorfilter "^1.2.5"
 
-"@longlost/app-media@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@longlost/app-media/-/app-media-2.0.0.tgz#e4cb505fead9b3927a97cd77b740a544967459cd"
-  integrity sha512-OBVMQtoxL9WXeBbvMUFVIXR7fClxjJmQhRCyiYO8EN56cUg+8Vho9ahdUxpHqfZdBBgziMtQYuXrAv5GEseirw==
+"@longlost/app-media@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@longlost/app-media/-/app-media-2.0.1.tgz#0db6075963fe702834b41ac92ca9dd56fbccd540"
+  integrity sha512-AvXrwK/recMpIfxbhcKmkHV5jul9ezIMEQcTERjpwoXxgL0V6AJkLjhcNsMbSLCd11LoCDleg+L2W0mc/3G7Ow==
   dependencies:
     "@longlost/app-element" "^2.0.0"
     "@longlost/utils" "^2.0.0"
@@ -589,6 +589,16 @@
   integrity sha512-McFnHQZMAmpcbavOzUWc2aYYP8aI/kOwIKGcvQYjqYzYMz1lHRFbO9zIG5mvtildDSBAIWV5HiDMILAaoqwnCg==
   dependencies:
     "@polymer/polymer" "^3.3.1"
+    pinch-zoom-element "^1.1.1"
+
+"@longlost/pinch-to-zoom@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@longlost/pinch-to-zoom/-/pinch-to-zoom-1.1.0.tgz#c9df792cbceee402592828d0ea3b0770219de1fa"
+  integrity sha512-/I9qhC4tnD20X0GjmmK4JwdxZoIDi0XVficM6Nraswi2sl/jr+OZe0iBL1ggU5OW4+RnAM+/zUE9WrfzCBWiTg==
+  dependencies:
+    "@longlost/app-element" "^2.0.0"
+    "@longlost/utils" "^2.0.0"
+    "@polymer/polymer" "^3.4.1"
     pinch-zoom-element "^1.1.1"
 
 "@longlost/services@^3.2.3":

@@ -1,5 +1,5 @@
 
-<style>
+<style include="app-shared-styles">
 
   :host {
     display:  block;
@@ -10,11 +10,27 @@
     --button-color:            var(--app-accent-color);
   }
 
+  .video {
+    transition: opacity 0.2s ease-out;
+    opacity:    0;
+  }
+
+  .show {
+    opacity: 1;
+  }
+
+  #pinchToZoom {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+  }
+
   .btn-wrapper {
     display:       inline-block;
     position:      absolute;
     border-radius: 40px;
-    overflow:      hidden;
   }
 
   .btn-wrapper::before {
@@ -25,11 +41,22 @@
     bottom:   0px;
     left:     0px;    
     opacity:  0.5;
-    background-color: var(--button-background-color);
+
+    /*
+      Box shadow will not render if #btn-wrapper 
+      has overlay mask settings, so apply them here.
+    */
+    border-radius:       40px;
+    overflow:            hidden;      
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:         blur(10px);
+    background-color:        var(--button-background-color);
   }
 
   .btn-wrapper[hidden] {
-    /*display: none;*/
+    display: none;
   }
 
   .top-btn {
@@ -57,8 +84,8 @@
     color: var(--button-color);
   }
 
-  #flash-btn {
-    margin-right: 4px;
+  #torch-btn {
+    margin-left: 4px;
   }
 
   .capture-wrapper {
@@ -93,12 +120,15 @@
                          red-eye-reduction
                          torch="[[_torch]]"
                          stream="[[_stream]]"
+                         zoom="[[_zoom]]"
                          on-app-media-image-capture-photo-capabilities-changed="__photoCapabilitiesChangedHandler"
                          on-app-media-image-capture-track-capabilities-changed="__trackCapabilitiesChangedHandler">
 </app-media-image-capture>
 
 <!-- Live video feed and camera controls ui. -->
 <app-media-video id="video"
+                 class="video"
+                 contain="[[contain]]"
                  autoplay
                  source="[[_stream]]"
                  mirror="[[_mirror]]"
@@ -108,38 +138,34 @@
 </app-media-video>
 
 
-<div class="btn-wrapper top-btn right-btn"
+<pinch-to-zoom id="pinchToZoom"
+               on-pinch-to-zoom-change="__pinchToZoomChangeHandler">
+</pinch-to-zoom>
+
+
+<div class="shared-card-shadow btn-wrapper top-btn right-btn"
      hidden="[[_hideLightingBtns]]">
-  <!-- 
-  <paper-icon-button id="flash-btn"
-                     hidden="[[_hideFlashBtn]]"
-                     icon="[[_flashIcon]]"
+  
+  <paper-icon-button hidden="[[_hideFlashBtn]]"
+                     icon="[[_flashBtnIcon]]"
                      on-click="__flashBtnClicked">
   </paper-icon-button>
-  <paper-icon-button hidden="[[_hideTorchBtn]]"
+  <paper-icon-button id="torch-btn"
+                     hidden="[[_hideTorchBtn]]"
                      icon="app-media-icons:highlight"
                      on-click="__torchBtnClicked">
-  </paper-icon-button> -->
-
-
-  <paper-icon-button icon="[[_flashIcon]]"
-                     on-click="__flashBtnClicked">
   </paper-icon-button>
-  <paper-icon-button icon="app-media-icons:highlight"
-                     on-click="__torchBtnClicked">
-  </paper-icon-button>
-
 
 </div>
 
-<div class="btn-wrapper bottom-btn right-btn"
+<div class="shared-card-shadow btn-wrapper bottom-btn right-btn"
      hidden="[[_hideSwitchFaceBtn]]">
-  <paper-icon-button icon="[[__computeFaceIcon(_cameraFace)]]"
+  <paper-icon-button icon="[[_faceBtnIcon]]"
                      on-click="__switchFaceBtnClicked">
   </paper-icon-button>
 </div>
 
-<div class="btn-wrapper capture-wrapper bottom-btn center-btn"
+<div class="shared-card-shadow btn-wrapper capture-wrapper bottom-btn center-btn"
      hidden="[[noCapture]]">
   <paper-icon-button id="capture-btn"
                      icon="app-media-icons:radio-button-checked"

@@ -1,10 +1,10 @@
 
-<style>
+<style include="app-shared-styles">
 
-	:host {
-		--camera-overlay-ui-background-color: rgb(33, 33, 33);
-		--camera-overlay-ui-color: var(--app-accent-color);
-	}
+  :host {
+    --camera-overlay-ui-background-color: rgb(33, 33, 33);
+    --camera-overlay-ui-color: var(--app-accent-color);
+  }
 
   #overlay {
     background-color: black;
@@ -24,16 +24,15 @@
     width:  100%;
 
     --button-background-color: var(--camera-overlay-ui-background-color);
-    --button-color: 					 var(--camera-overlay-ui-color);
+    --button-color:            var(--camera-overlay-ui-color);
   }
 
   #btn-wrapper {
     display:       inline-block;    
-    position: 		 absolute;
-    top:      		 16px;
-    left:     		 16px;
+    position:      absolute;
+    top:           16px;
+    left:          16px;
     border-radius: 50%;
-    overflow:      hidden;
   }
 
   #btn-wrapper::before {
@@ -44,7 +43,18 @@
     bottom:   0px;
     left:     0px;    
     opacity:  0.5;
-    background-color: var(--camera-overlay-ui-background-color);
+
+    /*
+      Box shadow will not render if #btn-wrapper 
+      has overlay mask settings, so apply them here.
+    */
+    border-radius:       50%;
+    overflow:            hidden;      
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:         blur(10px);
+    background-color:        var(--camera-overlay-ui-background-color);
   }
 
   paper-icon-button {
@@ -55,26 +65,26 @@
 
 
 <app-overlay id="overlay"
-						 above-safari-nav
+             above-safari-nav
              modal
              prebuilt-animation="from-right"
              on-overlay-reset="__reset">
 
   <div id="content">
 
-
     <app-camera id="cam"
-    						default-camera="[[defaultCamera]]" 
-		            no-capture="[[noCapture]]"
-		            on-app-camera-permission-denied="__permissionDeniedHandler"
-		            on-app-camera-streaming-changed="__streamingChangedHandler">
-		</app-camera>
+                default-camera="[[defaultCamera]]" 
+                no-capture="[[noCapture]]"
+                on-app-camera-permission-denied="__permissionDeniedHandler"
+                on-app-camera-streaming-changed="__streamingChangedHandler">
+    </app-camera>
 
-		<div id="btn-wrapper">
-	    <paper-icon-button icon="app-icons:arrow-back"
-	                       on-click="__backBtnClicked">
-	    </paper-icon-button>
-	  </div>
+    <div id="btn-wrapper"
+         class="shared-card-shadow">
+      <paper-icon-button icon="app-icons:arrow-back"
+                         on-click="__backBtnClicked">
+      </paper-icon-button>
+    </div>
 
   </div>
 

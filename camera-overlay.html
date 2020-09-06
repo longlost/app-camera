@@ -27,12 +27,25 @@
     --button-color:            var(--camera-overlay-ui-color);
   }
 
+  #img,
+  #flip {
+    position: absolute;
+    top:      unset;
+    right:    unset;
+    bottom:   16px;
+    left:     16px;
+    height:   64px;
+    width:    64px;
+    background-color: transparent;
+  }
+
   #btn-wrapper {
     display:       inline-block;    
     position:      absolute;
     top:           16px;
     left:          16px;
     border-radius: 50%;
+    z-index:       1;
   }
 
   #btn-wrapper::before {
@@ -68,7 +81,7 @@
              above-safari-nav
              modal
              prebuilt-animation="from-right"
-             on-overlay-reset="__reset">
+             on-overlay-reset="__resetHandler">
 
   <div id="content">
 
@@ -76,7 +89,29 @@
                 default-camera="[[defaultCamera]]" 
                 no-capture="[[noCapture]]"
                 on-app-camera-permission-denied="__permissionDeniedHandler"
+                on-app-camera-photo-capture-changed="__photoCaptureChangedHandler"
                 on-app-camera-streaming-changed="__streamingChangedHandler">
+
+
+      <lazy-image id="img"
+                  class$="[[_imgClass]]"
+                  alt="Last camera capture."
+                  no-fade
+                  placeholder="[[_placeholder]]"
+                  slot="ui"
+                  src="[[_src]]"
+                  on-click="__imgClickHandler"
+                  on-lazy-image-placeholder-loaded-changed="__placeHolderLoadedHandler"
+                  on-lazy-image-loaded-changed="__srcLoadedHandler">
+      </lazy-image>
+
+      <flip-image id="flip"
+                  measurements="[[_measurements]]"
+                  slot="ui"
+                  src="[[_capture]]">
+      </flip-image>
+
+
     </app-camera>
 
     <div id="btn-wrapper"
@@ -89,3 +124,12 @@
   </div>
 
 </app-overlay>
+
+
+<app-file-system id="fs"
+                 accept="image" 
+                 coll="test"
+                 dark-mode="[[darkMode]]"
+                 list="photos"
+                 multiple>
+</app-file-system>

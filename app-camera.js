@@ -10,25 +10,10 @@
   *
   **/
 
-import {
-  AppElement, 
-  html
-} from '@longlost/app-element/app-element.js';
-
-import {
-  clamp
-} from '@longlost/lambda/lambda.js';
-
-import {
-  consumeEvent,
-  listenOnce, 
-  message,
-  schedule,
-  warn,
-  wait
-} from '@longlost/utils/utils.js';
-
-import htmlString from './app-camera.html';
+import {AppElement, html}   from '@longlost/app-element/app-element.js';
+import {ZoomMixin}          from './zoom-mixin.js';
+import {consumeEvent, wait} from '@longlost/utils/utils.js';
+import htmlString           from './app-camera.html';
 import '@longlost/app-icons/app-icons.js';
 import '@longlost/app-media/app-media-icons.js';
 import '@longlost/app-media/app-media-devices.js';
@@ -36,11 +21,42 @@ import '@longlost/app-media/app-media-stream.js';
 import '@longlost/app-media/app-media-video.js';
 import '@longlost/app-media/app-media-image-capture.js';
 import '@longlost/app-shared-styles/app-shared-styles.js';
-import '@longlost/pinch-to-zoom/pinch-to-zoom.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 
 
-class AppCamera extends AppElement {
+// Flip a photographic blob horizontally about its center axis.
+// Corrects for 'user' facing camera.
+const createMirroredImage = blob => {  
+  const canvas = document.createElement('canvas');
+  const ctx    = canvas.getContext('2d');
+  const img    = new Image();
+
+  return new Promise((resolve, reject) => {
+
+    const done = newBlob => {
+      window.URL.revokeObjectURL(blob);
+
+      resolve(newBlob);
+    };
+
+    img.onload = () => {
+      canvas.height = img.naturalHeight;
+      canvas.width  = img.naturalWidth;
+
+      ctx.translate(img.naturalWidth, 0);
+      ctx.scale(-1, 1); // Flip horizontally.
+      ctx.drawImage(img, 0, 0);
+
+      canvas.toBlob(done, blob.type, 1); // 1 - No quality reduction.
+    };
+
+    img.onerror = reject;
+    img.src     = window.URL.createObjectURL(blob);
+  });
+};
+
+
+class AppCamera extends ZoomMixin(AppElement) {
   static get is() { return 'app-camera'; }
 
   static get template() {
@@ -87,13 +103,6 @@ class AppCamera extends AppElement {
       _cameraFace: {
         type: String,
         value: 'user' // Or 'environment'.
-      },
-
-      // Function used to clamp the scale value from
-      // `pinch-to-zoom` to set the `_zoom`.
-      _clamper: {
-        type: Object,
-        computed: '__computeClamper(_zoomMin, _zoomMax)'
       },
 
       _devices: Array,
@@ -155,13 +164,13 @@ class AppCamera extends AppElement {
 
       _photoCapabilities: Object,
 
-      // `pinch-to-zoom` output which is clamped to compute
-      // the `_zoom` factor.
-      _scale: Number,
+      _ready: Boolean,      
 
       _stream: Object,
 
       _trackCapabilities: Object,
+
+      _trackSettings: Object,
 
       _torch: {
         type: Boolean,
@@ -170,35 +179,20 @@ class AppCamera extends AppElement {
 
       _videoConstraints: {
         type: Object,
-        computed: '__computeVideoConstraints(_cameraFace)'
+        computed: '__computeVideoConstraints(_cameraFace, _trackConstraints)'
       },
 
-      _videoDevice: Object,
-
-      _zoom: {
-        type: Number,
-        value: 1, // Zoom ratio val:1 (ie 4:1 or 1:1 -> no zoom).
-        computed: '__computeZoom(_clamper, _scale)'
-      },
-
-      _zoomMax: {
-        type: Number,
-        computed: '__computeZoomMax(_photoCapabilities.zoom, _trackCapabilities.zoom)'
-      },
-
-      _zoomMin: {
-        type: Number,
-        computed: '__computeZoomMin(_photoCapabilities.zoom, _trackCapabilities.zoom)'
-      }
+      _videoDevice: Object
 
     };
   }
 
 
   static get observers() {
-    return [    
-      '__clamperChanged(_clamper)',
-      '__devicesChanged(_devices)'
+    return [
+      '__devicesChanged(_devices)',
+      '__mirrorChanged(_mirror)',
+      '__readyChanged(_ready)'
     ];
   }
 
@@ -209,18 +203,6 @@ class AppCamera extends AppElement {
     if (this.defaultCamera === 'user' || this.defaultCamera === 'environment') {
       this._cameraFace = this.defaultCamera;
     }
-  }
-
-
-  connectedCallback() {
-    super.connectedCallback();
-
-    this.__setupPinchToZoom();
-  }
-
-
-  __computeClamper(min, max) {
-    return clamp(min, max);
   }
 
 
@@ -301,61 +283,12 @@ class AppCamera extends AppElement {
   }
 
 
-  __computeVideoConstraints(face) {
+  __computeVideoConstraints(face, constraints = {}) {
     if (!face) { 
-      return {facingMode: 'user'}; 
+      return {...constraints, facingMode: 'user'}; 
     }
 
-    return {facingMode: face};
-  }
-
-
-  __computeZoom(clamper, scale) {
-    if (typeof clamper !== 'function' || typeof scale !== 'number') { return; }
-
-    return clamper(scale);
-  }
-
-
-  __computeZoomMax(photoZoom, trackZoom) {
-    if (trackZoom) {
-      const {max} = trackZoom;
-
-      return max > 0 ? max : 4;
-    }
-
-    if (photoZoom) {
-      const {max} = photoZoom;
-
-      return max > 0 ? max : 4;
-    }
-
-    return 4;
-  }
-
-
-  __computeZoomMin(photoZoom, trackZoom) {
-    if (trackZoom) {
-      const {min} = trackZoom;
-
-      return typeof min === 'number' ? min : 1;
-    }
-
-    if (photoZoom) {
-      const {min} = photoZoom;
-
-      return typeof min === 'number' ? min : 1;
-    }
-
-    return 1;
-  }
-
-
-  __clamperChanged(fn) {
-    if (!fn) { return; }
-    
-    // Reset the pinch-to-zoom element.
-    this.__setupPinchToZoom();
+    return {...constraints, facingMode: face};
   }
 
 
@@ -364,16 +297,13 @@ class AppCamera extends AppElement {
   }
 
 
-  __setupPinchToZoom() {
-    this._scale = 1;
+  __mirrorChanged(mirror) {
+    this.fire('app-camera-mirror-changed', {value: mirror});
+  }
 
-    this.$.pinchToZoom.setTransform({
-      scale: 1,
-      x: 0,
-      y: 0,
-      // Fire a 'change' event if values are different to current values
-      allowChangeEvent: true
-    });
+
+  __readyChanged(ready) {
+    this.fire('app-camera-ready-changed: ', {value: ready});
   }
 
 
@@ -407,6 +337,13 @@ class AppCamera extends AppElement {
   }
 
 
+  __trackConstraintsChangedHandler(event) {
+    consumeEvent(event);
+
+    this._trackConstraints = event.detail.value;
+  }
+
+
   __photoCapabilitiesChangedHandler(event) {
     consumeEvent(event);
 
@@ -436,6 +373,7 @@ class AppCamera extends AppElement {
       this._kind = 'videoinput';
     }
 
+    this._ready  = false;
     this._stream = stream;
 
     this.fire('app-camera-streaming-changed', {value: Boolean(stream)});
@@ -448,30 +386,20 @@ class AppCamera extends AppElement {
     this.fire('app-camera-permission-denied');
   }
 
+  // `_trackSettings` is currently only used by `ZoomMixin`,
+  // but this method is kept here for future use.
+  __videoTrackChangedHandler(event) {
+    consumeEvent(event);
+
+    const {value: track} = event.detail;    
+    this._trackSettings  = track ? track.getSettings() : undefined;
+  }
+
 
   __sourceChangedHandler(event) {
     consumeEvent(event);
 
     this.fire('app-camera-source-changed', event.detail);
-  }
-
-
-  async __pinchToZoomChangeHandler(event) {
-    consumeEvent(event);
-
-    await schedule();
-
-    this._scale = event.detail.scale;
-  }
-
-
-  __stopVideoPreview() {
-    this._active = false;
-  }
-
-
-  __startVideoPreview() {
-    this._active = true;
   }
 
 
@@ -497,9 +425,9 @@ class AppCamera extends AppElement {
           this._flash = 'off';
           break;
         case 'off':
-          this._flash = 'on';
+          this._flash = 'flash';
           break;
-        case 'on':
+        case 'flash':
           this._flash = 'auto';
           break;
       }
@@ -548,7 +476,7 @@ class AppCamera extends AppElement {
 
     await wait(250);
 
-    this.fire('app-camera-ready');
+    this._ready = true;
   }
 
 
@@ -558,7 +486,7 @@ class AppCamera extends AppElement {
 
       const blob = await this.takePhoto();
 
-      this.fire('app-camera-photo-captured', {value: blob});
+      this.fire('app-camera-photo-capture-changed', {value: blob});
     }
     catch (error) {
       if (error === 'click debounced') { return; }
@@ -573,17 +501,23 @@ class AppCamera extends AppElement {
 
 
   start() {
-    this.__startVideoPreview();
+    this._active = true;
   }
 
 
   stop() {
-    this.__stopVideoPreview();
+    this._active = false;
   }
 
   // Returns promise that resolves to a Blob Object.
-  takePhoto() {
-    return this.$.capture.takePhoto();
+  async takePhoto() {
+    const raw = await this.$.capture.takePhoto();
+
+    const blob = this._mirror ? 
+                   await createMirroredImage(raw) : 
+                   raw;
+
+    return blob;
   }
 
 }

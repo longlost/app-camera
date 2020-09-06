@@ -34,9 +34,20 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-element/app-element.js';
-import {consumeEvent}     from '@longlost/utils/utils.js';
-import htmlString         from './camera-overlay.html';
+import {
+  AppElement, 
+  html
+} from '@longlost/app-element/app-element.js';
+
+import {
+  consumeEvent, 
+  getBBox, 
+  schedule
+} from '@longlost/utils/utils.js';
+
+import htmlString from './camera-overlay.html';
+import '@longlost/app-images/flip-image.js';
+import '@longlost/app-images/lazy-image.js';
 import '@longlost/app-overlays/app-overlay.js';
 import '@longlost/app-shared-styles/app-shared-styles.js';
 import './app-camera.js';
@@ -53,6 +64,8 @@ class CameraOverlay extends AppElement {
   static get properties() {
     return {
 
+      darkMode: Boolean,
+
       // Set which camera to initialize with.
       //
       // NOTE: Many devices, such as laptops/pc do not 
@@ -68,6 +81,25 @@ class CameraOverlay extends AppElement {
         value: false
       },
 
+      user: Object,
+
+      // FLIP image input.
+      _capture: Object,
+
+      _imgClass: {
+        type: String,
+        computed: '__computeImgClass(_placeholder, _src)'
+      },
+
+      _opened: Boolean,
+
+      _placeholder: String,
+
+      // FLIP image input.
+      _measurements: Object,
+
+      _src: String,
+
       _streaming: Boolean,
 
     };
@@ -76,13 +108,57 @@ class CameraOverlay extends AppElement {
 
   static get observers() {
     return [
+      '__openedChanged(_opened)',
       '__streamingChanged(_streaming)'
     ];
   }
 
 
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.__getMeasurements = this.__getMeasurements.bind(this);
+
+    window.addEventListener('resize', this.__getMeasurements);
+  }
+
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+
+    window.removeEventListener('resize', this.__getMeasurements);    
+  }
+
+
+  __openedChanged(opened) {
+    if (opened) {
+      this.__getMeasurements();
+      this.start();
+    }
+    else {
+      this.stop();
+    }
+  }
+
+
+  __computeImgClass(placeholder, src) {
+    if (placeholder || src) {
+      return 'shared-card-shadow';
+    }
+    
+    return '';
+  }
+
+
   __streamingChanged(streaming) {
     this.fire('camera-overlay-streaming-changed', {value: streaming});
+  }
+
+
+  __getMeasurements() {
+    if (!this._opened) { return; }
+
+    this._measurements = getBBox(this.$.overlay);
   }
 
 
@@ -96,6 +172,54 @@ class CameraOverlay extends AppElement {
   }
 
 
+  async __imgClickHandler() {
+    try {
+      await this.clicked();
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.openList();
+
+    }
+    catch (error) {
+      if (error === 'click debounced') { return; }
+      console.error(error);
+    }
+  }
+
+
+  async __placeHolderLoadedHandler(event) {
+    consumeEvent(event);
+
+    const {value: loaded} = event.detail;
+
+    if (loaded) {
+
+      await schedule();
+
+      this._src     = undefined;
+      this._capture = undefined;
+
+      this.$.flip.reset();
+      window.URL.revokeObjectURL(this._placeholder);
+    }
+  }
+
+
+  __srcLoadedHandler(event) {
+    consumeEvent(event);
+
+    const {value: loaded} = event.detail;
+
+    if (loaded) {
+      this._placeholder = undefined;
+    }
+  }
+
+
   __streamingChangedHandler(event) {
     consumeEvent(event);
 
@@ -103,8 +227,23 @@ class CameraOverlay extends AppElement {
   }
 
 
-  __reset() {
-    this.stop();
+  __resetHandler() {
+    this._opened = false;
+  }
+
+
+  async __photoCaptureChangedHandler(event) {
+    const {value: blob} = event.detail;    
+
+    this._capture = window.URL.createObjectURL(blob);
+
+    this.$.flip.reset();
+
+    await schedule();
+
+    await this.$.flip.play();
+
+    this._placeholder = this._capture;
   }
 
 
@@ -129,7 +268,7 @@ class CameraOverlay extends AppElement {
   async open() {
     await this.$.overlay.open();
 
-    this.start();
+    this._opened = true;
   }
 
   // Initialize video stream.

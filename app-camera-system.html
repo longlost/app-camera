@@ -1,0 +1,19 @@
+
+
+<acs-overlay id="camera" 
+						 default-camera="[[defaultCamera]]"
+						 on-camera-overlay-open-camera-roll="__openCameraRollHandler"
+						 on-camera-overlay-open-options="__openOptionsHandler">
+</acs-overlay>
+
+
+<acs-options-overlay id="options"></acs-options-overlay>
+
+
+<app-file-system id="fs"
+                 accept="image" 
+                 coll="test"
+                 dark-mode="[[darkMode]]"
+                 list="photos"
+                 multiple>
+</app-file-system>

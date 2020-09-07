@@ -1,0 +1,125 @@
+
+<style>
+
+  #overlay {
+    padding: 0px;
+
+    --overlay-toolbar-background-color: rgba(33, 33, 33, 0.7);
+    --overlay-background-color:         transparent;
+    --overlay-toolbar-color:            var(--constant-light-text);
+    --overlay-toolbar-vignette-opacity: 0;
+  }
+
+  #overlay::before {
+  	content:  ' ';
+    position: fixed;
+    top:      -128px;
+    right:    0px;
+    bottom:   -128px;
+    left:     0px;      
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:         blur(10px);
+
+    background-color: rgba(33, 33, 33, 0.7);
+  }
+
+  paper-tabs {
+    height:    64px;
+    max-width: 414px;
+    margin:    0px auto;
+    --paper-tab-ink:                  var(--app-primary-color-text);
+    --paper-tabs-selection-bar-color: var(--app-primary-color-text);
+  }
+
+
+
+
+  .page {
+  	display: flex;
+  	justify-content: center;
+  	align-items: center;
+  	font-size: 22px;
+  	height: 100vh;
+  	width: 100vw;
+  }
+
+
+
+
+  /*app-spinner {
+    z-index: 2;
+  }*/
+
+  *[hidden] {
+    display: none;
+  }
+
+</style>
+
+
+<app-header-overlay id="overlay"
+                    disable-background-effects
+                    header-size="2"
+                    prebuilt-animation="from-right"
+                    title="Camera Options"
+                    on-overlay-reset="__overlayResetHandler">
+                    
+
+  <paper-tabs attr-for-selected="page"
+              slot="bottom-toolbar-tabs-slot"
+              selected="stickers"
+              on-selected-changed="__selectedPageChangedHandler">
+
+    <paper-tab page="stickers">Stickers</paper-tab>
+    <paper-tab page="effects">Effects</paper-tab> 
+    <paper-tab page="settings">Settings</paper-tab>
+
+  </paper-tabs>
+   
+
+  <tab-pages id="pages"
+             attr-for-selected="page"
+             selected="[[_selectedPage]]"
+             slot="content"
+             on-tab-pages-page-changed="__tabPageChangedHandler">
+
+
+
+    <div class="page" page="stickers">Stickers</div>
+    <div class="page" page="effects">Effects</div>
+    <div class="page" page="settings">Settings</div>
+
+
+
+    <!-- <acs-stickers-page current="[[_currentPage]]"
+                       page="stickers"
+                       selected="[[_selectedPage]]"
+                       on-stickers-page-hide-spinner="__hideSpinnerHandler"
+                       on-stickers-page-show-spinner="__showSpinnerHandler">
+    </acs-stickers-page>
+  
+    <acs-effects-page current="[[_currentPage]]"
+                      page="effects"
+                      selected="[[_selectedPage]]"
+                      on-effects-page-hide-spinner="__hideSpinnerHandler"
+                      on-effects-page-show-spinner="__showSpinnerHandler">                      
+    </acs-effects-page>
+    
+    <acs-settings-page current="[[_currentPage]]"
+                       page="settings"                   
+                       selected="[[_selectedPage]]"
+                       on-settings-page-hide-spinner="__hideSpinnerHandler"
+                       on-settings-page-show-spinner="__showSpinnerHandler">
+    </acs-settings-page> -->
+
+
+  </tab-pages>
+
+
+  <app-spinner id="spinner" 
+               full-screen
+               slot="content">
+  </app-spinner>
+
+</app-header-overlay>

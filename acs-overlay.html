@@ -1,0 +1,243 @@
+
+<style include="app-shared-styles">
+
+  :host {
+    --camera-overlay-ui-background-color: rgb(33, 33, 33);
+    --camera-overlay-ui-color:            var(--app-accent-color);
+  }
+
+  #overlay {
+    padding:          0px;
+    background-color: black;
+  }
+
+  #content {   
+    position: fixed;
+    top:      0px;
+    right:    0px;
+    bottom:   0px;
+    left:     0px;
+    overflow: hidden;
+  }
+
+  #cam {
+    height: 100%;
+    width:  100%;
+  }
+
+  #preview-img-wrapper,
+  #flip {
+    position: absolute;
+    top:      unset;
+    right:    unset;
+    bottom:   16px;
+    left:     16px;
+    height:   64px;
+    width:    64px;
+  }
+
+  #preview-container {
+    position: relative;
+    height:   100%;
+  }
+
+  #img {    
+    background-color: transparent;
+  }
+
+  #top-btns-wrapper {
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+    position:        absolute;
+    top:             0px;
+    left:            0px;
+    right:           0px;
+    height:          64px;
+    padding:         0px 16px;
+  }
+
+  .btn-wrapper {
+    display:       inline-block;
+    position:      relative;
+    border-radius: 40px;
+    z-index:       1;
+  }
+
+  .btn-wrapper::before {
+    content:  ' ';
+    position: absolute;
+    top:      0px;
+    right:    0px;
+    bottom:   0px;
+    left:     0px;    
+    opacity:  0.5;
+
+    /*
+      Box shadow will not render if #btn-wrapper 
+      has overlay mask settings, so apply them here.
+    */
+    border-radius:       40px;
+    overflow:            hidden;      
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:         blur(10px);
+    background-color:        var(--camera-overlay-ui-background-color);
+  }
+
+  .btn-wrapper[hidden] {
+    display: none;
+  }
+
+  #lighting-btn-wrapper {
+    margin-left: 12px;
+  }
+
+  .content-btn-wrapper {
+    position: absolute;
+  }
+
+  .bottom-btn {
+    bottom: 16px;
+  }
+
+  .right-btn {
+    right: 16px;
+  }
+ 
+  .center-btn {
+    left:      50%;
+    transform: translate(-50%, 0px);
+  }  
+
+  paper-icon-button {
+    color: var(--camera-overlay-ui-color);
+  }
+
+  paper-icon-button[disabled] {
+    color:   var(--app-disabled-color);
+    opacity: 0.5;
+  }
+
+  #torch-btn {
+    margin-left: 4px;
+  }
+
+  .capture-wrapper {
+    border-radius: 50%;
+  }
+
+  #capture-btn {
+    height: 64px;
+    width:  64px;    
+    padding: 4px;
+  }
+
+</style>
+
+
+<app-overlay id="overlay"
+             prebuilt-animation="from-right"
+             on-overlay-reset="__resetHandler">
+
+  <div id="content">
+
+    <app-camera id="cam"
+                default-camera="[[defaultCamera]]"
+                flash="[[_flash]]" 
+                no-capture="[[noCapture]]"
+                torch="[[_torch]]"
+                on-app-camera-changed="__cameraChangedHandler"
+                on-app-camera-photo-capabilities-changed="__photoCapabilitiesChangedHandler"
+                on-app-camera-permission-denied="__permissionDeniedHandler"
+                on-app-camera-ready-changed="__readyChangedHandler"
+                on-app-camera-streaming-changed="__streamingChangedHandler"
+                on-app-camera-track-capabilities-changed="__trackCapabilitiesChangedHandler">
+    </app-camera>
+
+
+    <div id="preview-img-wrapper"
+         class$="[[_previewClass]]">
+      <div id="preview-container">
+        <lazy-image id="img"
+                    alt="Last camera capture."
+                    no-fade
+                    placeholder="[[_placeholder]]"
+                    src="[[_src]]"
+                    on-click="__imgClickHandler"
+                    on-lazy-image-placeholder-loaded-changed="__placeHolderLoadedHandler"
+                    on-lazy-image-loaded-changed="__srcLoadedHandler">
+        </lazy-image>
+
+        <paper-ripple on-transitionend="__rippleDoneHandler"></paper-ripple>
+      </div>
+    </div>
+
+    <flip-image id="flip"
+                measurements="[[_measurements]]"
+                src="[[_capture]]">
+    </flip-image>
+
+
+
+    <div id="top-btns-wrapper">      
+
+      <div id="back-btn-wrapper"
+           class="shared-card-shadow btn-wrapper">
+        <paper-icon-button icon="app-icons:arrow-back"
+                           on-click="__backBtnClicked">
+        </paper-icon-button>
+      </div>
+
+
+      <div>
+
+        <div class="shared-card-shadow btn-wrapper">
+          <paper-icon-button icon="app-camera-icons:camera-enhance"
+                             on-click="__optionsBtnClicked">
+          </paper-icon-button>
+        </div>
+
+        <div id="lighting-btn-wrapper" 
+             class="shared-card-shadow btn-wrapper"
+             hidden="[[_hideLightingBtns]]">      
+          <paper-icon-button disabled="[[_btnDisabled]]"
+                             hidden="[[_hideFlashBtn]]"
+                             icon="[[_flashBtnIcon]]"
+                             on-click="__flashBtnClicked">
+          </paper-icon-button>
+          <paper-icon-button id="torch-btn"
+                             disabled="[[_btnDisabled]]"
+                             hidden="[[_hideTorchBtn]]"
+                             icon="app-camera-icons:highlight"
+                             on-click="__torchBtnClicked">
+          </paper-icon-button>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="shared-card-shadow btn-wrapper content-btn-wrapper bottom-btn right-btn"
+         hidden="[[_hideSwitchFaceBtn]]">
+      <paper-icon-button disabled="[[_btnDisabled]]"
+                         icon="[[_faceBtnIcon]]"
+                         on-click="__switchCameraBtnClicked">
+      </paper-icon-button>
+    </div>
+
+    <div class="shared-card-shadow btn-wrapper content-btn-wrapper capture-wrapper bottom-btn center-btn"
+         hidden="[[noCapture]]">
+      <paper-icon-button id="capture-btn"
+                         disabled="[[_btnDisabled]]"
+                         icon="app-camera-icons:radio-button-checked"
+                         on-click="__captureBtnClicked">
+      </paper-icon-button>
+    </div>
+
+  </div>
+
+
+</app-overlay>

@@ -53,13 +53,17 @@ export const ZoomMixin = superClass => {
 	        computed: '__computeCurrentZoom(_trackSettings.zoom)'
 	      },
 
+      	_photoCapabilities: Object,
+
 	      // `pinch-to-zoom` output which is clamped to compute
 	      // the `_zoom` factor.
 	      _scale: {
 	        type: Number,
 	        value: 1,
 	        observer: '__scaleChanged'
-	      },
+	      },	      
+
+      	_trackCapabilities: Object,
 
 	      _zoom: {
 	        type: Number,
@@ -82,7 +86,9 @@ export const ZoomMixin = superClass => {
 
 	  static get observers() {
 	    return [
-	      '__canZoomReadyChanged(_canZoom, _ready)'
+	      '__canZoomReadyChanged(_canZoom, _ready)',
+	      '__photoCapabilitiesChanged(_photoCapabilities)',
+	      '__trackCapabilitiesChanged(_trackCapabilities)'
 	    ];
 	  }
 
@@ -165,6 +171,16 @@ export const ZoomMixin = superClass => {
 	    }
 	  }
 
+
+	  __photoCapabilitiesChanged(capabilities) {
+	  	this.fire('app-camera-photo-capabilities-changed', {value: capabilities});
+	  }
+
+
+	  __trackCapabilitiesChanged(capabilities) {
+	  	this.fire('app-camera-track-capabilities-changed', {value: capabilities});
+	  }
+
 	  // Must compensate for the fact that a max 
 	  // cannot be set on pinch-zoom element.
 	  // Instead of using the raw scale value, 
@@ -194,6 +210,20 @@ export const ZoomMixin = superClass => {
 	      y:     0,
 	      allowChangeEvent: true // Fire events.
 	    });
+	  }
+
+
+	  __photoCapabilitiesChangedHandler(event) {
+	    consumeEvent(event);
+
+	    this._photoCapabilities = event.detail.value;
+	  }
+
+
+	  __trackCapabilitiesChangedHandler(event) {
+	    consumeEvent(event);
+
+	    this._trackCapabilities = event.detail.value;
 	  }
 
 

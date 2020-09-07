@@ -14,14 +14,10 @@ import {AppElement, html}   from '@longlost/app-element/app-element.js';
 import {ZoomMixin}          from './zoom-mixin.js';
 import {consumeEvent, wait} from '@longlost/utils/utils.js';
 import htmlString           from './app-camera.html';
-import '@longlost/app-icons/app-icons.js';
-import '@longlost/app-media/app-media-icons.js';
 import '@longlost/app-media/app-media-devices.js';
 import '@longlost/app-media/app-media-stream.js';
 import '@longlost/app-media/app-media-video.js';
 import '@longlost/app-media/app-media-image-capture.js';
-import '@longlost/app-shared-styles/app-shared-styles.js';
-import '@polymer/paper-icon-button/paper-icon-button.js';
 
 
 // Flip a photographic blob horizontally about its center axis.
@@ -34,18 +30,27 @@ const createMirroredImage = blob => {
   return new Promise((resolve, reject) => {
 
     const done = newBlob => {
-      window.URL.revokeObjectURL(blob);
+
+      // Avoid memory leaks on iOS Safari, see https://stackoverflow.com/a/52586606.
+      canvas.width  = 0;
+      canvas.height = 0;
+
+      window.URL.revokeObjectURL(blob); // Release memory resources.
 
       resolve(newBlob);
     };
 
     img.onload = () => {
-      canvas.height = img.naturalHeight;
-      canvas.width  = img.naturalWidth;
+      const {naturalHeight, naturalWidth} = img;
 
-      ctx.translate(img.naturalWidth, 0);
-      ctx.scale(-1, 1); // Flip horizontally.
-      ctx.drawImage(img, 0, 0);
+      canvas.height = naturalHeight;
+      canvas.width  = naturalWidth;
+
+      // Flip horizontally.
+      ctx.translate(naturalWidth, 0);
+      ctx.scale(-1, 1); 
+
+      ctx.drawImage(img, 0, 0, naturalWidth, naturalHeight);
 
       canvas.toBlob(done, blob.type, 1); // 1 - No quality reduction.
     };
@@ -89,8 +94,12 @@ class AppCamera extends ZoomMixin(AppElement) {
         value: 'user' // Or 'environment'. 
       },
 
-      // Hide the camera capture button.
-      noCapture: {
+      flash: {
+        type: String,
+        value: 'auto' // Or 'off', or 'flash'.
+      },
+
+      torch: {
         type: Boolean,
         value: false
       },
@@ -100,51 +109,12 @@ class AppCamera extends ZoomMixin(AppElement) {
         value: false
       },
 
-      _cameraFace: {
+      _camera: {
         type: String,
         value: 'user' // Or 'environment'.
       },
 
       _devices: Array,
-
-      _faceBtnIcon: {
-        type: String,
-        computed: '__computeFaceBtnIcon(_cameraFace)'
-      },
-
-      _flash: {
-        type: String,
-        value: 'auto' // Or 'off', or 'flash'.
-      },
-
-      _flashBtnIcon: {
-        type: String,
-        computed: '__computeFlashBtnIcon(_flash)'
-      },
-
-      _hideFlashBtn: {
-        type: Boolean,
-        value: true,
-        computed: '__computeHideFlashBtn(_photoCapabilities.fillLightMode)'
-      },
-
-      _hideLightingBtns: {
-        type: Boolean,
-        value: true,
-        computed: '__computeHideLightingBtns(_hideFlashBtn, _hideTorchBtn)'
-      },
-
-      _hideTorchBtn: {
-        type: Boolean,
-        value: true,
-        computed: '__computeHideTorchBtn(_trackCapabilities.torch)'
-      },
-
-      _hideSwitchFaceBtn: {
-        type: Boolean,
-        value: true,
-        computed: '__computeHideSwitchFaceBtn(_trackCapabilities.facingMode)'
-      },
 
       // Must ignore the first change in the selected video device
       // since fetching it happens after the stream starts and thus
@@ -159,27 +129,18 @@ class AppCamera extends ZoomMixin(AppElement) {
       _mirror: {
         type: Boolean,
         value: true,
-        computed: '__computeMirror(_cameraFace)'
+        computed: '__computeMirror(_camera)'
       },
-
-      _photoCapabilities: Object,
 
       _ready: Boolean,      
 
       _stream: Object,
 
-      _trackCapabilities: Object,
-
       _trackSettings: Object,
-
-      _torch: {
-        type: Boolean,
-        value: false
-      },
 
       _videoConstraints: {
         type: Object,
-        computed: '__computeVideoConstraints(_cameraFace, _trackConstraints)'
+        computed: '__computeVideoConstraints(_camera, _trackConstraints)'
       },
 
       _videoDevice: Object
@@ -190,8 +151,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
   static get observers() {
     return [
-      '__devicesChanged(_devices)',
-      '__mirrorChanged(_mirror)',
+      '__cameraChanged(_camera)',
       '__readyChanged(_ready)'
     ];
   }
@@ -201,76 +161,8 @@ class AppCamera extends ZoomMixin(AppElement) {
     super();
 
     if (this.defaultCamera === 'user' || this.defaultCamera === 'environment') {
-      this._cameraFace = this.defaultCamera;
+      this._camera = this.defaultCamera;
     }
-  }
-
-
-  __computeHideFlashBtn(fillLightMode) {
-    if (!fillLightMode || fillLightMode === 'none') { 
-      return true; 
-    }
-
-    if (Array.isArray(fillLightMode)) {
-
-      if (!fillLightMode.length) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-
-  __computeHideLightingBtns(hideFlash, hideTorch) {
-    return hideFlash && hideTorch;
-  }
-
-
-  __computeHideTorchBtn(torch) {
-    return !Boolean(torch);
-  }
-
-
-  __computeHideSwitchFaceBtn(facingMode) {
-    if (!facingMode || facingMode === 'none') {
-      return true;
-    } 
-
-    if (Array.isArray(facingMode)) {
-
-      if (facingMode.length === 0) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-
-  __computeFlashBtnIcon(flash) {
-    if (!flash) { return ''; }
-
-    if (flash === 'auto') {
-      return 'app-media-icons:flash-auto';
-    }
-
-    if (flash === 'off') {
-      return 'app-media-icons:flash-off';
-    }
-
-    return 'app-media-icons:flash-on';
-  }
-
-
-  __computeFaceBtnIcon(cameraFace) {
-    if (!cameraFace) { return ''; }
-
-    if (cameraFace === 'user') {
-      return 'app-media-icons:camera-front';
-    }
-
-    return 'app-media-icons:camera-rear';
   }
 
 
@@ -292,18 +184,13 @@ class AppCamera extends ZoomMixin(AppElement) {
   }
 
 
-  __devicesChanged(devices) {
-    this.fire('app-camera-devices-changed', {value: devices});
-  }
-
-
-  __mirrorChanged(mirror) {
-    this.fire('app-camera-mirror-changed', {value: mirror});
+  __cameraChanged(camera) {
+    this.fire('app-camera-changed', {value: camera});
   }
 
 
   __readyChanged(ready) {
-    this.fire('app-camera-ready-changed: ', {value: ready});
+    this.fire('app-camera-ready-changed', {value: ready});
   }
 
 
@@ -330,24 +217,10 @@ class AppCamera extends ZoomMixin(AppElement) {
   }
 
 
-  __trackCapabilitiesChangedHandler(event) {
-    consumeEvent(event);
-
-    this._trackCapabilities = event.detail.value;
-  }
-
-
   __trackConstraintsChangedHandler(event) {
     consumeEvent(event);
 
     this._trackConstraints = event.detail.value;
-  }
-
-
-  __photoCapabilitiesChangedHandler(event) {
-    consumeEvent(event);
-
-    this._photoCapabilities = event.detail.value;
   }
 
 
@@ -403,72 +276,6 @@ class AppCamera extends ZoomMixin(AppElement) {
   }
 
 
-  async __torchBtnClicked() {
-    try {
-      await this.clicked();
-
-      this._torch = !this._torch;
-    }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
-  }
-
-
-  async __flashBtnClicked() {
-    try {
-      await this.clicked();
-
-      switch (this._flash) {
-        case 'auto':
-          this._flash = 'off';
-          break;
-        case 'off':
-          this._flash = 'flash';
-          break;
-        case 'flash':
-          this._flash = 'auto';
-          break;
-      }
-    }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
-  }
-
-
-  async __switchFaceBtnClicked() {
-    try {
-      await this.clicked();
-
-      if (!this._devices || this._devices.length < 2) { return; }
-
-      if (this._stream) {
-        this.$.video.classList.remove('show');
-
-        await wait(250);
-      }
-
-      if (this._cameraFace === 'user') {
-        this._cameraFace = 'environment';
-
-        this.$.devices.selectNextDevice();
-      }
-      else {
-        this._cameraFace = 'user';  
-
-        this.$.devices.selectPreviousDevice();
-      }
-    }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
-  }
-
-
   async __metadataLoadedHandler(event) {
     consumeEvent(event);
 
@@ -479,19 +286,40 @@ class AppCamera extends ZoomMixin(AppElement) {
     this._ready = true;
   }
 
+  // MUST use a canvas element that is attached to the DOM
+  // for the live video feed not to freeze.
+  // No camera settings options, such as flash or redeye reduction,
+  // will be available for polyfilled browsers.
+  __takePhotoSafariVideoFeedFreezeFix() {
+    const videoEl         = this.select('video', this.$.video);
+    const {height, width} = videoEl.getBoundingClientRect();
 
-  async __captureBtnClicked() {
-    try {
-      await this.clicked();
+    this.$.canvas.height = height;
+    this.$.canvas.width  = width;
 
-      const blob = await this.takePhoto();
+    const ctx = this.$.canvas.getContext('2d');
 
-      this.fire('app-camera-photo-capture-changed', {value: blob});
+    // Flip horizontally.
+    if (this._mirror) {
+      ctx.translate(width, 0);
+      ctx.scale(-1, 1); 
     }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
+
+    ctx.drawImage(videoEl, 0, 0, width, height);
+
+    return new Promise(resolve => {
+
+      const done = newBlob => {
+
+        // Avoid memory leaks on iOS Safari, see https://stackoverflow.com/a/52586606.
+        this.$.canvas.height = 0;
+        this.$.canvas.width  = 0;
+
+        resolve(newBlob);
+      };
+
+      this.$.canvas.toBlob(done, 'image/jpeg', 1); // 1 - No quality reduction.
+    });
   }
 
   // Returns a promise that resolves to an ImageBitmap.
@@ -509,15 +337,42 @@ class AppCamera extends ZoomMixin(AppElement) {
     this._active = false;
   }
 
-  // Returns promise that resolves to a Blob Object.
+
+  async switchCamera() {
+
+    if (!this._devices || this._devices.length < 2) { return; }
+
+    if (this._stream) {
+      this.$.video.classList.remove('show');
+
+      await wait(250);
+    }
+
+    if (this._camera === 'user') {
+      this._camera = 'environment';
+      this.$.devices.selectNextDevice();
+    }
+    else {
+      this._camera = 'user';  
+      this.$.devices.selectPreviousDevice();
+    }
+  }
+
+
   async takePhoto() {
+
+    // No camera settings options will be available for polyfilled browsers.
+    if (this.$.capture.usingPolyfill) {
+      return this.__takePhotoSafariVideoFeedFreezeFix();
+    }
+
     const raw = await this.$.capture.takePhoto();
 
     const blob = this._mirror ? 
                    await createMirroredImage(raw) : 
                    raw;
 
-    return blob;
+    return blob;    
   }
 
 }

@@ -1,13 +1,18 @@
 
-<style include="app-shared-styles">
+<style>
 
   :host {
     display:  block;
     height:   100%;
     position: relative;
+  }
 
-    --button-background-color: rgb(33, 33, 33);
-    --button-color:            var(--app-accent-color);
+  /*
+    MUST have a canvas that is in the DOM tree for takePhoto to work in Safari.
+    Without it being in the DOM, the live video feed will freeze. 
+  */
+  #canvas {
+    position: absolute;
   }
 
   .video {
@@ -28,78 +33,6 @@
     height:   unset;
   }
 
-  .btn-wrapper {
-    display:       inline-block;
-    position:      absolute;
-    border-radius: 40px;
-    z-index:       1;
-  }
-
-  .btn-wrapper::before {
-    content:  ' ';
-    position: absolute;
-    top:      0px;
-    right:    0px;
-    bottom:   0px;
-    left:     0px;    
-    opacity:  0.5;
-
-    /*
-      Box shadow will not render if #btn-wrapper 
-      has overlay mask settings, so apply them here.
-    */
-    border-radius:       40px;
-    overflow:            hidden;      
-    -webkit-mask-image: -webkit-radial-gradient(white, black);
-
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter:         blur(10px);
-    background-color:        var(--button-background-color);
-  }
-
-  .btn-wrapper[hidden] {
-    display: none;
-  }
-
-  .top-btn {
-    top: 16px;
-  }
-
-  .bottom-btn {
-    bottom: 16px;
-  }
-
-  .left-btn {
-    left: 16px;
-  }
-
-  .right-btn {
-    right: 16px;
-  }
- 
-  .center-btn {
-    left:      50%;
-    transform: translate(-50%, 0px);
-  }
-
-  paper-icon-button {
-    color: var(--button-color);
-  }
-
-  #torch-btn {
-    margin-left: 4px;
-  }
-
-  .capture-wrapper {
-    border-radius: 50%;
-  }
-
-  #capture-btn {
-    height: 64px;
-    width:  64px;    
-    padding: 4px;
-  }
-
 </style>
 
 <!-- Non visual elements. -->
@@ -117,10 +50,10 @@
                   on-app-media-stream-permission-denied="__streamPermissionDeniedHandler">
 </app-media-stream>
 <app-media-image-capture id="capture"
-                         fill-light-mode="[[_flash]]"
+                         fill-light-mode="[[flash]]"
                          focus-mode="single-shot"
                          red-eye-reduction
-                         torch="[[_torch]]"
+                         torch="[[torch]]"
                          stream="[[_stream]]"
                          zoom="[[_zoom]]"
                          on-app-media-image-capture-photo-capabilities-changed="__photoCapabilitiesChangedHandler"
@@ -128,6 +61,14 @@
                          on-app-media-image-capture-track-constraints-changed="__trackConstraintsChangedHandler"
                          on-app-media-image-capture-video-track-changed="__videoTrackChangedHandler">
 </app-media-image-capture>
+
+
+<!-- 
+  MUST have a canvas that is in the DOM tree for takePhoto to work in Safari.
+  Without it being in the DOM, the live video feed will freeze. 
+-->
+<canvas id="canvas"></canvas>
+
 
 <!-- Live video feed and camera controls ui. -->
 <app-media-video id="video"
@@ -142,43 +83,10 @@
 </app-media-video>
 
 
-<slot name="video"></slot>
+<slot></slot>
 
 
 <pinch-to-zoom id="pinchToZoom"
                on-pinch-to-zoom-change="__pinchToZoomChangeHandler">
 </pinch-to-zoom>
 
-
-<slot name="ui"></slot>
-
-
-<div class="shared-card-shadow btn-wrapper top-btn right-btn"
-     hidden="[[_hideLightingBtns]]">
-  
-  <paper-icon-button hidden="[[_hideFlashBtn]]"
-                     icon="[[_flashBtnIcon]]"
-                     on-click="__flashBtnClicked">
-  </paper-icon-button>
-  <paper-icon-button id="torch-btn"
-                     hidden="[[_hideTorchBtn]]"
-                     icon="app-media-icons:highlight"
-                     on-click="__torchBtnClicked">
-  </paper-icon-button>
-
-</div>
-
-<div class="shared-card-shadow btn-wrapper bottom-btn right-btn"
-     hidden="[[_hideSwitchFaceBtn]]">
-  <paper-icon-button icon="[[_faceBtnIcon]]"
-                     on-click="__switchFaceBtnClicked">
-  </paper-icon-button>
-</div>
-
-<div class="shared-card-shadow btn-wrapper capture-wrapper bottom-btn center-btn"
-     hidden="[[noCapture]]">
-  <paper-icon-button id="capture-btn"
-                     icon="app-media-icons:radio-button-checked"
-                     on-click="__captureBtnClicked">
-  </paper-icon-button>
-</div>

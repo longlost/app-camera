@@ -466,14 +466,13 @@
     leaflet "^1.6.0"
     leaflet.tilelayer.colorfilter "^1.2.5"
 
-"@longlost/app-media@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@longlost/app-media/-/app-media-2.0.2.tgz#ebea8347f316f426e0f87ddf4c6347fc6d5b36b3"
-  integrity sha512-MegKCfGYp3ERJmRVTom6njN7Zhj28pUi82Jt2qlzICk+03sV6KGhYBhia5ztFbeMzuBxifFuO6VSIFIpzqqosA==
+"@longlost/app-media@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@longlost/app-media/-/app-media-2.1.0.tgz#bb67afeeb6211d961f6d445809abea13072ebdad"
+  integrity sha512-bkbxcWIdyqY0ZZJxk8Z1netIcYjAVxukb8HOxUXb8d4RhPpxh3h7y8BmBl55c3XNrf+GzZ3eGl/0TAN+kbbIOA==
   dependencies:
     "@longlost/app-element" "^2.0.0"
     "@longlost/utils" "^2.0.0"
-    "@polymer/iron-iconset-svg" "^3.0.1"
     "@polymer/polymer" "^3.4.1"
     image-capture "^0.4.0"
 
@@ -607,6 +606,14 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@longlost/tab-pages/-/tab-pages-1.1.1.tgz#6f148aa038f8bdbabc73470c9f1a0af118d3f733"
   integrity sha512-eBQLZEHMm9xypPbP7UZievwXJWSa7ScC64ftmTI3srh5f8M1ZS60rCl/kzVw9m4qufyzi20TKn5yO9ZT1ZI1dA==
+  dependencies:
+    "@longlost/app-element" "^2.0.0"
+    "@longlost/utils" "^2.0.0"
+
+"@longlost/tab-pages@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@longlost/tab-pages/-/tab-pages-1.2.0.tgz#afb445e68c870a252bf84dd71b63ef3c8515285f"
+  integrity sha512-r+FUnIslIIkFwvyUJpbDaG9OUs0GYicCbp5CFAf3oCMDHfC5jO0ZmBsOxbv4fC+gs/4EjncTXy81iGmJNO3VnA==
   dependencies:
     "@longlost/app-element" "^2.0.0"
     "@longlost/utils" "^2.0.0"

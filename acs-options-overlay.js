@@ -66,11 +66,29 @@ class ACSOptionsOverlay extends AppElement {
         value: 'stickers'
       },
 
-      // Only used for initialization of paper-tabs
-      // once all pages have been lazy-loaded.
-      _selectedTab: String
+      // Only used for initialization of paper-tabs after
+      // the overlay has been opened for the first time.
+      _initialTab: String
 
     };
+  }
+
+
+  static get observers() {
+    return [
+      '__openedChanged(_opened)'
+    ];
+  }
+
+
+  __openedChanged(opened) {
+    if (opened) {
+
+      if (!this._initialTab) {
+        this._initialTab = 'stickers';
+      }
+
+    }
   }
 
 
@@ -103,8 +121,7 @@ class ACSOptionsOverlay extends AppElement {
   __showSpinnerHandler(event) {
     hijackEvent(event);
 
-    const {text} = event.detail;
-    this.$.spinner.show(text);
+    this.$.spinner.show();
   }
   
 

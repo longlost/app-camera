@@ -46,6 +46,7 @@ import {
 
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
+import './acs-options-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
 
 
 class AppCameraSystem extends AppElement {
@@ -78,9 +79,9 @@ class AppCameraSystem extends AppElement {
 
   async __openCameraRollHandler(event) {
     try {
-    	hijackEvent(event);
+      hijackEvent(event);
 
-    	if (!this.user) { return; } // Must be signed in to save photos.
+      if (!this.user) { return; } // Must be signed in to save photos.
 
       await import(
         /* webpackChunkName: 'app-file-system' */ 
@@ -97,34 +98,27 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  async __openOptionsHandler(event) {
-    try {
-    	hijackEvent(event);
+  __openOptionsHandler(event) {
+    hijackEvent(event);
 
-      await import(
-        /* webpackChunkName: 'acs-options-overlay' */ 
-        './acs-options-overlay.js'
-      );
-
-      await this.$.options.open();
-    }
-    catch (error) {
-      console.error(error);
-
-      warn('Sorry! Could not open camera options.');
-    }
+    this.$.options.open();
   }
 
 
   open() {
-  	return this.$.camera.open();
+    return this.$.camera.open();
   }
 
   // Show a modal which allows the user to choose 
   // whether to use the `camera-overlay` or
   // `app-file-system` 'file-sources' ui to add photos.
   openChooser() {
-  	// return this.$.chooser.open();
+
+
+    // return this.$.chooser.open();
+
+
+
   }
 
 }

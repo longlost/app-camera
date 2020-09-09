@@ -68,8 +68,6 @@ class ACSOverlay extends AppElement {
   static get properties() {
     return {
 
-      darkMode: Boolean,
-
       // Set which camera to initialize with.
       //
       // NOTE: Many devices, such as laptops/pc do not 
@@ -501,6 +499,8 @@ class ACSOverlay extends AppElement {
   async __switchCameraBtnClicked() {
     try {
       await this.clicked();
+
+      this._ready = false;
 
       this.$.cam.switchCamera();
     }

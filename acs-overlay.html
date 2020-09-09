@@ -2,7 +2,7 @@
 <style include="app-shared-styles">
 
   :host {
-    --camera-overlay-ui-background-color: rgb(33, 33, 33);
+    --camera-overlay-ui-background-color: rgba(33, 33, 33, 0.5);
     --camera-overlay-ui-color:            var(--app-accent-color);
   }
 
@@ -70,8 +70,7 @@
     top:      0px;
     right:    0px;
     bottom:   0px;
-    left:     0px;    
-    opacity:  0.5;
+    left:     0px;
 
     /*
       Box shadow will not render if #btn-wrapper 
@@ -91,7 +90,7 @@
   }
 
   #lighting-btn-wrapper {
-    margin-left: 12px;
+    margin-right: 12px;
   }
 
   .content-btn-wrapper {
@@ -129,8 +128,8 @@
   }
 
   #capture-btn {
-    height: 64px;
-    width:  64px;    
+    height:  64px;
+    width:   64px;    
     padding: 4px;
   }
 
@@ -180,7 +179,6 @@
     </flip-image>
 
 
-
     <div id="top-btns-wrapper">      
 
       <div id="back-btn-wrapper"
@@ -192,12 +190,6 @@
 
 
       <div>
-
-        <div class="shared-card-shadow btn-wrapper">
-          <paper-icon-button icon="app-camera-icons:camera-enhance"
-                             on-click="__optionsBtnClicked">
-          </paper-icon-button>
-        </div>
 
         <div id="lighting-btn-wrapper" 
              class="shared-card-shadow btn-wrapper"
@@ -212,6 +204,12 @@
                              hidden="[[_hideTorchBtn]]"
                              icon="app-camera-icons:highlight"
                              on-click="__torchBtnClicked">
+          </paper-icon-button>
+        </div>
+
+        <div class="shared-card-shadow btn-wrapper">
+          <paper-icon-button icon="app-camera-icons:camera-enhance"
+                             on-click="__optionsBtnClicked">
           </paper-icon-button>
         </div>
 

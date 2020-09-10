@@ -45,6 +45,13 @@ import {
   schedule
 } from '@longlost/utils/utils.js';
 
+// `o9n` is a screen orientation ponyfill.
+// It normalizes the output of different browsers, 
+// namely Safari, which is an outlier that hasn't
+// adopted the ScreenOrientation api spec.
+// https://github.com/chmanie/o9n
+import {orientation} from 'o9n'; 
+
 import htmlString from './acs-overlay.html';
 import '@longlost/app-icons/app-icons.js';
 import '@longlost/app-images/flip-image.js';
@@ -95,6 +102,14 @@ class ACSOverlay extends AppElement {
 
       // FLIP image input.
       _capture: Object,
+
+      // Always place capture button at bottom of device,
+      // away from the camera, as opposed to the bottom of the screen.
+      _captureBtnClass: {
+        type: String,
+        value: 'bottom-btn center-horz-btn',
+        computed: '__computeCaptureBtnClass(_screenOrientation)'
+      },
 
       _faceBtnIcon: {
         type: String,
@@ -155,6 +170,14 @@ class ACSOverlay extends AppElement {
 
       _ready: Boolean,
 
+      // From `o9n` screen orientation ponyfill.
+      // https://github.com/chmanie/o9n
+      //
+      // This is used to correctly place the capture button
+      // at the 'bottom' of the device, close to user's fingers
+      // and await from the camera.
+      _screenOrientation: String,
+
       _src: String,
 
       _streaming: Boolean,
@@ -182,21 +205,40 @@ class ACSOverlay extends AppElement {
   connectedCallback() {
     super.connectedCallback();
 
+    this.__getOrientation  = this.__getOrientation.bind(this);
     this.__getMeasurements = this.__getMeasurements.bind(this);
 
-    window.addEventListener('resize', this.__getMeasurements);
+    this.__getOrientation();
+
+    orientation.addEventListener('change', this.__getOrientation);
+    window.addEventListener(     'resize', this.__getMeasurements);
   }
 
 
   disconnectedCallback() {
     super.disconnectedCallback();
 
-    window.removeEventListener('resize', this.__getMeasurements);    
+    orientation.removeEventListener('change', this.__getOrientation);
+    window.removeEventListener(     'resize', this.__getMeasurements);    
   }
 
 
   __computeBtnDisabled(ready) {
     return !ready;
+  }
+
+
+  __computeCaptureBtnClass(orientation) {
+
+    if (orientation === 'landscape-primary') {
+      return 'right-btn center-vert-btn';
+    }
+
+    if (orientation === 'landscape-secondary') {
+      return 'left-btn center-vert-btn';
+    }
+
+    return 'bottom-btn center-horz-btn';
   }
 
 
@@ -301,6 +343,13 @@ class ACSOverlay extends AppElement {
 
   __streamingChanged(streaming) {
     this.fire('camera-overlay-streaming-changed', {value: streaming});
+  }
+
+
+  __getOrientation() {
+    if (!orientation) { return; }
+
+    this._screenOrientation = orientation.type;
   }
 
 

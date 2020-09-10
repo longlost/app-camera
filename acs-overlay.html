@@ -101,13 +101,22 @@
     bottom: 16px;
   }
 
+  .left-btn {
+    left: 16px;
+  }
+
   .right-btn {
     right: 16px;
   }
  
-  .center-btn {
+  .center-horz-btn {
     left:      50%;
     transform: translate(-50%, 0px);
+  }
+
+  .center-vert-btn {
+    top:       50%;
+    transform: translate(0px, -50%);
   }  
 
   paper-icon-button {
@@ -226,7 +235,7 @@
       </paper-icon-button>
     </div>
 
-    <div class="shared-card-shadow btn-wrapper content-btn-wrapper capture-wrapper bottom-btn center-btn"
+    <div class$="shared-card-shadow btn-wrapper content-btn-wrapper capture-wrapper [[_captureBtnClass]]"
          hidden="[[noCapture]]">
       <paper-icon-button id="capture-btn"
                          disabled="[[_btnDisabled]]"

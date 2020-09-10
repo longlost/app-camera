@@ -3,11 +3,21 @@
 <acs-overlay id="camera" 
 						 default-camera="[[defaultCamera]]"
 						 on-camera-overlay-open-camera-roll="__openCameraRollHandler"
-						 on-camera-overlay-open-options="__openOptionsHandler">
+						 on-camera-overlay-open-options="__openOptionsHandler"
+						 on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler">
 </acs-overlay>
 
 
 <acs-options-overlay id="options"></acs-options-overlay>
+
+
+<acs-permission-denied-modal id="denied"></acs-permission-denied-modal>
+
+
+<acs-source-chooser-modal id="chooser"
+													on-source-chooser-modal-open-camera="open"
+													on-source-chooser-modal-open-sources="__openSourcesHandler">
+</acs-source-chooser-modal>
 
 
 <app-file-system id="fs"

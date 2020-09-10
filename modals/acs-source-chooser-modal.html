@@ -1,0 +1,49 @@
+
+<style include="app-shared-styles">
+
+	strong {
+		font-size: 18px;
+	}
+
+  paper-button {
+    color: var(--app-primary-color);
+  }
+
+</style>
+
+
+<app-modal id="modal"
+           heading="Choose Photo Source"
+           on-click="__modalClicked">
+
+  <div id="content"
+       slot="card-content-slot">
+
+    <p>
+      Would you like to use your <strong>camera</strong>, or <strong>browse</strong> your device?
+    </p>      
+
+  </div>
+
+  <div slot="card-actions-slot">
+
+    <paper-button class="shared-paper-button-with-icon"
+    							on-click="__cameraBtnClicked">
+    	<iron-icon class="shared-iron-icon-inside-paper-button" 
+	               icon="app-camera-icons:add-a-photo">
+	    </iron-icon>
+	    <span>CAMERA</span>      
+    </paper-button> 
+
+
+    <paper-button class="shared-paper-button-with-icon"
+    							on-click="__browseBtnClicked">
+    	<iron-icon class="shared-iron-icon-inside-paper-button" 
+	               icon="app-camera-icons:folder-open">
+	    </iron-icon>
+	    <span>BROWSE</span>      
+    </paper-button> 
+
+  </div>
+
+</app-modal>

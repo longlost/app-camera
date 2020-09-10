@@ -7,7 +7,7 @@
   *
   *
   *
-  *  Properites:
+  *  Properties:
   *
   *
   *    
@@ -104,21 +104,55 @@ class AppCameraSystem extends AppElement {
     this.$.options.open();
   }
 
+  
+  async __openPermissionDeniedModalHandler(event) {
+    hijackEvent(event);
+
+    await import(
+      /* webpackChunkName: 'acs-source-chooser-modal' */ 
+      './modals/acs-permission-denied-modal.js'
+    );
+
+    this.$.denied.open();
+  }
+
+
+  async __openSourcesHandler(event) {
+    try {
+      hijackEvent(event);
+
+      if (!this.user) { return; } // Must be signed in to save photos.
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.open();
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Sorry! Could not open the file browser.');
+    }
+  }
+
 
   open() {
     return this.$.camera.open();
   }
 
   // Show a modal which allows the user to choose 
-  // whether to use the `camera-overlay` or
-  // `app-file-system` 'file-sources' ui to add photos.
-  openChooser() {
+  // whether to use the `acs-overlay` or
+  // `afs-file-sources` ui to add photos.
+  async openChooser() {
 
+    await import(
+      /* webpackChunkName: 'acs-source-chooser-modal' */ 
+      './modals/acs-source-chooser-modal.js'
+    );
 
-    // return this.$.chooser.open();
-
-
-
+    return this.$.chooser.open();
   }
 
 }

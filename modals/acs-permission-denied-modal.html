@@ -1,0 +1,50 @@
+
+<style>
+
+	strong {
+		font-size: 18px;
+	}
+
+  paper-button {
+    color: var(--app-primary-color);
+  }
+
+</style>
+
+
+<app-modal id="modal"
+           heading="Check Permissions"
+           on-click="__dismissHandler">
+
+  <div id="content"
+       slot="card-content-slot">
+
+    <p>
+      You will need to <strong>grant</strong> access to your <strong>camera</strong> to use this feature.
+    </p>
+
+    <p>[[_appCameraPermissionDenied]]</p>
+
+    <p>
+    	If you decide to use this feature, please go to your browser's settings and update the camera permissions for this site.
+    </p>
+
+    <p>
+      Please check out our 
+      <a href="[[_privacyPolicyUrl]]" 
+			   target="_blank"
+			   rel="noreferrer">
+				<strong>privacy policy</strong>
+			</a> 
+			for more information.
+    </p>   
+
+  </div>
+
+  <div slot="card-actions-slot">
+
+    <paper-button on-click="__dismissHandler">OK</paper-button> 
+
+  </div>
+
+</app-modal>

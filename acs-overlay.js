@@ -326,10 +326,7 @@ class ACSOverlay extends AppElement {
   __permissionDeniedHandler(event) {
     consumeEvent(event);
 
-    // TODO:
-    //
-    //    Show an explainer modal asking the user
-    //    to grant access to the device's camera.
+    this.fire('camera-overlay-permission-denied');
   }
 
 

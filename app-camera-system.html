@@ -1,12 +1,15 @@
 
 
 <acs-overlay id="camera"
-						 coll="[[coll]]"
+						 album-name="[[albumName]]"
+						 album-type="[[albumType]]"
 						 default-camera="[[defaultCamera]]"
 						 user="[[user]]"
+						 on-camera-overlay-album-uid-changed="__albumUidChangedHandler"
 						 on-camera-overlay-open-camera-roll="__openCameraRollHandler"
 						 on-camera-overlay-open-options="__openOptionsHandler"
-						 on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler">
+						 on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler"
+						 on-camera-overlay-save-capture="__saveCaptureHandler">
 </acs-overlay>
 
 
@@ -24,7 +27,7 @@
 
 <app-file-system id="fs"
                  accept="image" 
-                 coll="test"
+                 coll="[[_album]]"
                  dark-mode="[[darkMode]]"
                  list="photos"
                  multiple

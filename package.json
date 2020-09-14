@@ -1,6 +1,6 @@
 {
   "name": "@longlost/app-camera",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "homepage": "https://github.com/longlost/app-camera#readme",
   "dependencies": {
     "@longlost/app-element": "^2.0.0",
-    "@longlost/app-file-system": "^2.1.0",
+    "@longlost/app-file-system": "^2.1.1",
     "@longlost/app-icons": "^1.0.12",
     "@longlost/app-images": "^1.8.2",
     "@longlost/app-media": "^2.1.0",
@@ -27,7 +27,7 @@
     "@longlost/app-spinner": "^1.2.0",
     "@longlost/lambda": "^2.2.0",
     "@longlost/pinch-to-zoom": "^1.1.0",
-    "@longlost/services": "^3.2.3",
+    "@longlost/services": "^4.0.0",
     "@longlost/tab-pages": "^1.2.0",
     "@longlost/utils": "^2.0.0",
     "@polymer/iron-icon": "^3.0.1",
@@ -37,6 +37,7 @@
     "@polymer/paper-ripple": "^3.0.2",
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/polymer": "^3.4.1",
+    "mime-types": "^2.1.27",
     "o9n": "^2.1.0"
   },
   "devDependencies": {

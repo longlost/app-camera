@@ -60,6 +60,11 @@ class AppCameraSystem extends AppElement {
   static get properties() {
     return {
 
+      coll: {
+        type: String,
+        value: 'albums'
+      },
+
       darkMode: Boolean,
 
       // Set which camera to initialize with.
@@ -89,6 +94,8 @@ class AppCameraSystem extends AppElement {
       );
 
       await this.$.fs.openList();
+
+      this.$.camera.stop();
     }
     catch (error) {
       console.error(error);
@@ -129,12 +136,21 @@ class AppCameraSystem extends AppElement {
       );
 
       await this.$.fs.open();
+
+      this.$.camera.stop();
     }
     catch (error) {
       console.error(error);
 
       warn('Sorry! Could not open the file browser.');
     }
+  }
+
+
+  __listClosedHander(event) {
+    hijackEvent(event);
+
+    this.$.camera.start();
   }
 
 

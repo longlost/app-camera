@@ -1,7 +1,9 @@
 
 
-<acs-overlay id="camera" 
+<acs-overlay id="camera"
+						 coll="[[coll]]"
 						 default-camera="[[defaultCamera]]"
+						 user="[[user]]"
 						 on-camera-overlay-open-camera-roll="__openCameraRollHandler"
 						 on-camera-overlay-open-options="__openOptionsHandler"
 						 on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler">
@@ -25,5 +27,7 @@
                  coll="test"
                  dark-mode="[[darkMode]]"
                  list="photos"
-                 multiple>
+                 multiple
+                 no-upload-confirm
+                 on-app-file-system-list-closed="__listClosedHander">
 </app-file-system>

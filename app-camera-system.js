@@ -60,9 +60,15 @@ class AppCameraSystem extends AppElement {
   static get properties() {
     return {
 
-      coll: {
+      albumName: {
         type: String,
-        value: 'albums'
+        value: 'My Photos'
+      },
+
+      // This MUST be unique to avoid unreachable data.
+      albumType: {
+        type: String,
+        value: 'photos'
       },
 
       darkMode: Boolean,
@@ -76,9 +82,28 @@ class AppCameraSystem extends AppElement {
         value: 'user' // Or 'environment'. 
       },
 
-      user: Object
+      user: Object,
+
+      _album: {
+        type: String,
+        computed: '__computeAlbum(albumType, _albumUid)'
+      },
+
+      _albumUid: String
 
     };
+  }
+
+
+  __computeAlbum(type, uid) {
+    return `albums/${uid}/${type}`;
+  }
+
+
+  __albumUidChangedHandler(event) {
+    hijackEvent(event);
+
+    this._albumUid = event.detail.value;
   }
 
 
@@ -121,6 +146,25 @@ class AppCameraSystem extends AppElement {
     );
 
     this.$.denied.open();
+  }
+
+
+  async __saveCaptureHandler(event) {
+    try {      
+      hijackEvent(event);
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.add([event.detail.capture]);
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Could not save that photo!');
+    }
   }
 
 

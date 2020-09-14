@@ -39,6 +39,8 @@ import {
   html
 } from '@longlost/app-element/app-element.js';
 
+import {blobToFile} from '@longlost/lambda/lambda.js';
+
 import {
   consumeEvent, 
   getBBox, 
@@ -52,6 +54,7 @@ import {
 // https://github.com/chmanie/o9n
 import {orientation} from 'o9n'; 
 
+import mime       from 'mime-types';
 import services   from '@longlost/services/services.js';
 import htmlString from './acs-overlay.html';
 import '@longlost/app-icons/app-icons.js';
@@ -76,7 +79,16 @@ class ACSOverlay extends AppElement {
   static get properties() {
     return {
 
-      coll: String,
+      albumName: {
+        type: String,
+        value: 'My Photos'
+      },
+
+      // This MUST be unique to avoid unreachable data.
+      albumType: {
+        type: String,
+        value: 'photos'
+      },
 
       // Set which camera to initialize with.
       //
@@ -94,6 +106,11 @@ class ACSOverlay extends AppElement {
       },
 
       user: Object,
+
+      _albumUid: String,
+
+      // The photographic capture Blob.
+      _blob: Object,
 
       _btnDisabled: {
         type: Boolean,
@@ -206,6 +223,7 @@ class ACSOverlay extends AppElement {
 
   static get observers() {
     return [
+      '__albumUidChanged(_albumUid)',
       '__imgClickedRippledChanged(_imgClicked, _imgRippled)',
       '__openedChanged(_opened)',
       '__streamingChanged(_streaming)',
@@ -331,6 +349,11 @@ class ACSOverlay extends AppElement {
   }
 
 
+  __albumUidChanged(uid) {
+    this.fire('camera-overlay-album-uid-changed', {value: uid});
+  }
+
+
   __imgClickedRippledChanged(clicked, rippled) {
 
     if (clicked && rippled) {
@@ -363,23 +386,60 @@ class ACSOverlay extends AppElement {
 
       if (user && opened && !src) {
 
-        const [item] = await services.getAll({
-          // coll:  this.coll,
-
-          coll:  'test',
-
-
+        const [albumObj] = await services.query({
+          coll: `users/${user.uid}/albums`,
           limit: 1,
-          orderBy: {
-            prop:      'timestamp',
-            direction: 'desc'
-          } 
+          query: {
+            comparator: this.albumType,
+            field:      'type',
+            operator:   '=='
+          }
         });
 
-        if (item && !src && !this._placeholder) {
-          this._noFade      = false;
-          this._placeholder = item.thumbnail || item.optimized;
-        }      
+        // Use the album uid to get the most recent capture
+        // from the 'albums' collection that belongs to this user.
+        if (albumObj) {
+
+          this._albumUid = albumObj.uid;
+
+          const [item] = await services.getAll({
+            coll:  `albums/${this._albumUid}/${this.albumType}`,
+            limit: 1,
+            orderBy: {
+              prop:      'timestamp',
+              direction: 'desc'
+            } 
+          });
+
+          if (item && !src && !this._placeholder) {
+            this._noFade      = false;
+            this._placeholder = item.thumbnail || item.optimized;
+          }     
+        }
+
+        // The user does not yet have an album of this type,
+        // so create one and assign it a uid. 
+        else {
+
+          const ref = await services.add({
+            coll: `users/${user.uid}/albums`, 
+            data: {
+              description: null,
+              name:        this.albumName,
+              thumbnail:   null,
+              timestamp:   Date.now(),
+              type:        this.albumType
+            }
+          });
+
+          this._albumUid = ref.id;
+
+          services.set({
+            coll: `users/${user.uid}/albums`,
+            doc:  this._albumUid,
+            data: {uid: this._albumUid}
+          });
+        }         
       }
     }
     catch (error) {
@@ -462,6 +522,17 @@ class ACSOverlay extends AppElement {
 
       this.$.flip.reset();
       window.URL.revokeObjectURL(this._src);
+
+      // Start saving captures to user's album.
+      if (this._albumUid) {
+
+        const name    = `capture.${mime.extension(this._blob.type)}`;
+        const capture = blobToFile(this._blob, name, this._blob.type);
+
+        this.fire('camera-overlay-save-capture', {capture});
+
+        this._blob = undefined;
+      }
     }
   }
 
@@ -553,9 +624,9 @@ class ACSOverlay extends AppElement {
     try {
       await this.clicked();
 
-      const blob = await this.takePhoto();
+      this._blob = await this.takePhoto();
 
-      this._capture = window.URL.createObjectURL(blob);
+      this._capture = window.URL.createObjectURL(this._blob);
 
       this.$.flip.reset();
 

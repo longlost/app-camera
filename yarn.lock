@@ -349,17 +349,17 @@
     "@longlost/utils" "^1.4.0"
     "@polymer/polymer" "^3.4.1"
 
-"@longlost/app-file-system@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@longlost/app-file-system/-/app-file-system-2.0.1.tgz#be50d63f0e07e4dd6a5fc157383bd8393c039d9a"
-  integrity sha512-BM0/VoS/R8xqq4IbycWlWH/4NbTlJEbQsNCL1Yv7A+Dy9a3I3aMa15AgrS+WaTHTmb52F7pkmf9ydPxILQfM3Q==
+"@longlost/app-file-system@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@longlost/app-file-system/-/app-file-system-2.1.0.tgz#4a247cc4db561da641353b82c6c97e5dcd297aa1"
+  integrity sha512-y9o5Pm972v975HbXU8IBSq5FtRTn1LnRFWWCjeDj37+Mg0oieugvyzeaaKyTBeEjrCsvsPoF0d3TMHITj7QIzg==
   dependencies:
     "@ffmpeg-installer/ffmpeg" "^1.0.20"
     "@longlost/afs-custom-exifreader" "^1.0.0"
     "@longlost/app-carousel" "^3.0.3"
     "@longlost/app-element" "^2.0.0"
     "@longlost/app-icons" "^1.0.12"
-    "@longlost/app-images" "^1.8.1"
+    "@longlost/app-images" "^1.8.2"
     "@longlost/app-inputs" "^1.4.2"
     "@longlost/app-map" "^1.4.4"
     "@longlost/app-overlays" "^1.3.6"
@@ -373,7 +373,7 @@
     "@longlost/paper-gauge" "^1.0.1"
     "@longlost/pinch-to-zoom" "^1.1.0"
     "@longlost/services" "^3.2.3"
-    "@longlost/tab-pages" "^1.1.1"
+    "@longlost/tab-pages" "^1.2.0"
     "@longlost/utils" "^2.0.0"
     "@longlost/wasm-imagemagick" "^2.2.0"
     "@longlost/webgl-filter" "^1.0.0"
@@ -396,12 +396,12 @@
     "@polymer/polymer" "^3.4.1"
     child-process-promise "^2.2.1"
     comlink "^4.3.0"
-    cropperjs "^1.5.8"
+    cropperjs "^1.5.9"
     mime-types "^2.1.27"
     mkdirp "^1.0.4"
     multi-download "^3.0.0"
     nanoid "^3.1.12"
-    print-js "^1.1.0"
+    print-js "^1.2.0"
 
 "@longlost/app-icons@^1.0.0", "@longlost/app-icons@^1.0.12":
   version "1.0.12"
@@ -410,10 +410,10 @@
   dependencies:
     "@polymer/iron-iconset-svg" "^3.0.1"
 
-"@longlost/app-images@^1.8.1":
-  version "1.8.1"
-  resolved "https://registry.yarnpkg.com/@longlost/app-images/-/app-images-1.8.1.tgz#3c18aa15fe33f6bb3b55cf890be42ed51e29edcb"
-  integrity sha512-bZDA/QMmjVNYQPmVsawW2b4EVmQ5NGCUH0A5W+T0nx2MtAkNHARKGjpjF5hPhakh/b4KaTtntZDhmmPNCVRFhA==
+"@longlost/app-images@^1.8.2":
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/@longlost/app-images/-/app-images-1.8.2.tgz#92baeb15acf5342a980ef9a5ef7127a44c095334"
+  integrity sha512-lhUPmI+exhVhBBKwqx9lhhCTcBNjWeCceX39eH4FX/JdNL198cChehZh7Ox+Fpzp7Kk5/qLn3ZOqMwwGHZuSgA==
   dependencies:
     "@longlost/animation" "^2.0.0"
     "@longlost/app-element" "^2.0.0"
@@ -601,14 +601,6 @@
     "@firebase/util" "^0.2.47"
     "@longlost/boot" "^1.2.6"
     firebase "^7.14.5"
-
-"@longlost/tab-pages@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@longlost/tab-pages/-/tab-pages-1.1.1.tgz#6f148aa038f8bdbabc73470c9f1a0af118d3f733"
-  integrity sha512-eBQLZEHMm9xypPbP7UZievwXJWSa7ScC64ftmTI3srh5f8M1ZS60rCl/kzVw9m4qufyzi20TKn5yO9ZT1ZI1dA==
-  dependencies:
-    "@longlost/app-element" "^2.0.0"
-    "@longlost/utils" "^2.0.0"
 
 "@longlost/tab-pages@^1.2.0":
   version "1.2.0"
@@ -1471,10 +1463,10 @@ core-js@3.6.5:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.6.5.tgz#7395dc273af37fb2e50e9bd3d9fe841285231d1a"
   integrity sha512-vZVEEwZoIsI+vPEuoF9Iqf5H7/M3eeQqWlQnYa8FSKKePuYTf5MWnxb5SDAzCa60b3JBRS5g9b+Dq7b1y/RCrA==
 
-cropperjs@^1.5.8:
-  version "1.5.8"
-  resolved "https://registry.yarnpkg.com/cropperjs/-/cropperjs-1.5.8.tgz#cd5f1fcc1043dfc70c54455fbe26b02d2b077ac0"
-  integrity sha512-Q97kxr4hNhIhxlgyQ2Z/TEA6GEYsk+UfT2OltqZugciNjkPJ2rBwu17MgvI3exjiYmGAFdudIV8grMqhsYzKZw==
+cropperjs@^1.5.9:
+  version "1.5.9"
+  resolved "https://registry.yarnpkg.com/cropperjs/-/cropperjs-1.5.9.tgz#4ff9d31e02ad04d2fc5df0044207c2ad53d99da8"
+  integrity sha512-aPWlg43sLIcYN4GBXIdyvM09wNPgn1ug+vNVwV8jlb3dbgEX/B34Iw6hrjGSajkUDQBmaCi6uPOevFb7N0yUsw==
 
 cross-spawn@^4.0.2:
   version "4.0.2"
@@ -2332,10 +2324,10 @@ pointer-tracker@^2.0.3:
   resolved "https://registry.yarnpkg.com/pointer-tracker/-/pointer-tracker-2.4.0.tgz#78721c2d2201486db11ec1094377f03023b621b3"
   integrity sha512-pWI2tpaM/XNtc9mUTv42Rmjf6mkHvE8LT5DDEq0G7baPNhxNM9E3CepubPplSoSLk9E5bwQrAMyDcPVmJyTW4g==
 
-print-js@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/print-js/-/print-js-1.1.0.tgz#d85844a07285859f0cd65b4894e96639c062c7b6"
-  integrity sha512-nW324FU9lJKhRxVxAvnqr7OhJ7cJZvQBQQYgRNNy6vqf4Rm3F5pgggxFFuMN+Jp7EijvY+vvuHaPddNa+9gL9w==
+print-js@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/print-js/-/print-js-1.2.0.tgz#a1371984763ab62aadda67353d5b649227abc60f"
+  integrity sha512-fpUw7VPfu1feSl0VuEccvSYryxe86NKzm2twZhHKJ3sgYoGf61AQuPlb+p3w4lvXrQ4d44eylgpD920lqhfC7A==
 
 prismjs@^1.11.0:
   version "1.21.0"

@@ -52,6 +52,7 @@ import {
 // https://github.com/chmanie/o9n
 import {orientation} from 'o9n'; 
 
+import services   from '@longlost/services/services.js';
 import htmlString from './acs-overlay.html';
 import '@longlost/app-icons/app-icons.js';
 import '@longlost/app-images/flip-image.js';
@@ -74,6 +75,8 @@ class ACSOverlay extends AppElement {
 
   static get properties() {
     return {
+
+      coll: String,
 
       // Set which camera to initialize with.
       //
@@ -154,6 +157,14 @@ class ACSOverlay extends AppElement {
 
       _imgRippled: Boolean,
 
+      // Control preview image no-fade property.
+      // Fade-in when setting the placeholder from db,
+      // don't fade-in when transitioning from FLIP.
+      _noFade: {
+        type: Boolean,
+        value: true
+      },
+
       _opened: Boolean,
 
       _photoCapabilities: Object,
@@ -197,7 +208,8 @@ class ACSOverlay extends AppElement {
     return [
       '__imgClickedRippledChanged(_imgClicked, _imgRippled)',
       '__openedChanged(_opened)',
-      '__streamingChanged(_streaming)'
+      '__streamingChanged(_streaming)',
+      '__userOpenedSrcChanged(user, _opened, _src)'
     ];
   }
 
@@ -346,6 +358,36 @@ class ACSOverlay extends AppElement {
   }
 
 
+  async __userOpenedSrcChanged(user, opened, src) {
+    try {      
+
+      if (user && opened && !src) {
+
+        const [item] = await services.getAll({
+          // coll:  this.coll,
+
+          coll:  'test',
+
+
+          limit: 1,
+          orderBy: {
+            prop:      'timestamp',
+            direction: 'desc'
+          } 
+        });
+
+        if (item && !src && !this._placeholder) {
+          this._noFade      = false;
+          this._placeholder = item.thumbnail || item.optimized;
+        }      
+      }
+    }
+    catch (error) {
+      console.log('Could not fetch latest capture for preview: ', error);
+    }
+  }
+
+
   __getOrientation() {
     if (!orientation) { return; }
 
@@ -407,7 +449,7 @@ class ACSOverlay extends AppElement {
   }
 
 
-  async __placeHolderLoadedHandler(event) {
+  async __srcLoadedHandler(event) {
     consumeEvent(event);
 
     const {value: loaded} = event.detail;
@@ -416,22 +458,10 @@ class ACSOverlay extends AppElement {
 
       await schedule();
 
-      this._src     = undefined;
       this._capture = undefined;
 
       this.$.flip.reset();
-      window.URL.revokeObjectURL(this._placeholder);
-    }
-  }
-
-
-  __srcLoadedHandler(event) {
-    consumeEvent(event);
-
-    const {value: loaded} = event.detail;
-
-    if (loaded) {
-      this._placeholder = undefined;
+      window.URL.revokeObjectURL(this._src);
     }
   }
 
@@ -533,7 +563,9 @@ class ACSOverlay extends AppElement {
 
       await this.$.flip.play();
 
-      this._placeholder = this._capture;
+      this._noFade      = true;
+      this._placeholder = undefined;
+      this._src         = this._capture;
     }
     catch (error) {
       if (error === 'click debounced') { return; }

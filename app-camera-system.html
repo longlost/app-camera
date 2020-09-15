@@ -1,28 +1,38 @@
 
 
-<acs-overlay id="camera"
-						 album-name="[[albumName]]"
-						 album-type="[[albumType]]"
-						 default-camera="[[defaultCamera]]"
-						 user="[[user]]"
-						 on-camera-overlay-album-uid-changed="__albumUidChangedHandler"
-						 on-camera-overlay-open-camera-roll="__openCameraRollHandler"
-						 on-camera-overlay-open-options="__openOptionsHandler"
-						 on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler"
-						 on-camera-overlay-save-capture="__saveCaptureHandler">
-</acs-overlay>
+<template id="stamper" 
+          is="dom-if" 
+          if="[[_stamp]]" 
+          restamp>
 
 
-<acs-options-overlay id="options"></acs-options-overlay>
+  <acs-overlay id="camera"
+               album-name="[[albumName]]"
+               album-type="[[albumType]]"
+               default-camera="[[defaultCamera]]"
+               user="[[user]]"
+               on-camera-overlay-album-uid-changed="__albumUidChangedHandler"
+               on-camera-overlay-open-camera-roll="__openCameraRollHandler"
+               on-camera-overlay-open-options="__openOptionsHandler"
+               on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler"
+               on-camera-overlay-opened-changed="__cameraOpenedChangedHandler"
+               on-camera-overlay-save-capture="__saveCaptureHandler">
+  </acs-overlay>
 
 
-<acs-permission-denied-modal id="denied"></acs-permission-denied-modal>
+  <acs-options-overlay id="options"></acs-options-overlay>
 
 
-<acs-source-chooser-modal id="chooser"
-													on-source-chooser-modal-open-camera="open"
-													on-source-chooser-modal-open-sources="__openSourcesHandler">
-</acs-source-chooser-modal>
+  <acs-permission-denied-modal id="denied"></acs-permission-denied-modal>
+
+
+  <acs-source-chooser-modal id="chooser"
+                            on-source-chooser-modal-open-camera="open"
+                            on-source-chooser-modal-open-sources="__openSourcesHandler">
+  </acs-source-chooser-modal>
+
+
+</template>
 
 
 <app-file-system id="fs"

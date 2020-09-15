@@ -490,10 +490,10 @@
     "@longlost/utils" "^1.4.0"
     "@polymer/polymer" "^3.4.1"
 
-"@longlost/app-file-system@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@longlost/app-file-system/-/app-file-system-2.1.1.tgz#691742b456b627b9b4d2a1fe6a8691a2a0d04ac6"
-  integrity sha512-/cqLRN6T6Mz4/iLe+xd82kHUxP4frAEx90/puHrbXy1ZhjmsBHHOR4VWl4IvM6agddOeIak/opotCVUaFjlLhQ==
+"@longlost/app-file-system@^2.1.2":
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/@longlost/app-file-system/-/app-file-system-2.1.2.tgz#75bcbb019fd1423d8ffd3ad6eefaef4f0bc6b64f"
+  integrity sha512-WzT+U6LAXguo8MJar5rp+lNLirm4BDt62SsaLAXds0VX98AfjItXXUwO324UoYihx5dx+npTkLalE3OcYazeJw==
   dependencies:
     "@ffmpeg-installer/ffmpeg" "^1.0.20"
     "@longlost/afs-custom-exifreader" "^1.0.0"

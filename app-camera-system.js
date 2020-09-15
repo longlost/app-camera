@@ -41,6 +41,8 @@ import {
 
 import {
   hijackEvent,
+  listenOnce,
+  schedule,
   warn
 } from '@longlost/utils/utils.js';
 
@@ -89,7 +91,12 @@ class AppCameraSystem extends AppElement {
         computed: '__computeAlbum(albumType, _albumUid)'
       },
 
-      _albumUid: String
+      _albumUid: String,
+
+      _stamp: {
+        type: Boolean,
+        value: false
+      }
 
     };
   }
@@ -120,7 +127,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openList();
 
-      this.$.camera.stop();
+      this.select('#camera').stop();
     }
     catch (error) {
       console.error(error);
@@ -133,7 +140,7 @@ class AppCameraSystem extends AppElement {
   __openOptionsHandler(event) {
     hijackEvent(event);
 
-    this.$.options.open();
+    this.select('#options').open();
   }
 
   
@@ -145,7 +152,18 @@ class AppCameraSystem extends AppElement {
       './modals/acs-permission-denied-modal.js'
     );
 
-    this.$.denied.open();
+    this.select('#denied').open();
+  }
+
+  
+  __cameraOpenedChangedHandler(event) {
+    hijackEvent(event);
+
+    const {value: opened} = event.detail;
+
+    if (!opened) {
+      this._stamp = false;
+    }
   }
 
 
@@ -181,7 +199,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.open();
 
-      this.$.camera.stop();
+      this.select('#camera').stop();
     }
     catch (error) {
       console.error(error);
@@ -194,12 +212,18 @@ class AppCameraSystem extends AppElement {
   __listClosedHander(event) {
     hijackEvent(event);
 
-    this.$.camera.start();
+    this.select('#camera').start();
   }
 
 
-  open() {
-    return this.$.camera.open();
+  async open() {
+
+    this._stamp = true;
+
+    await listenOnce(this.$.stamper, 'dom-change');
+    await schedule();
+
+    return this.select('#camera').open();
   }
 
   // Show a modal which allows the user to choose 
@@ -212,7 +236,7 @@ class AppCameraSystem extends AppElement {
       './modals/acs-source-chooser-modal.js'
     );
 
-    return this.$.chooser.open();
+    return this.select('#chooser').open();
   }
 
 }

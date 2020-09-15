@@ -373,6 +373,8 @@ class ACSOverlay extends AppElement {
     else {
       this.stop();
     }
+
+    this.fire('camera-overlay-opened-changed', {value: opened});
   }
 
 

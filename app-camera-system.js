@@ -48,7 +48,7 @@ import {
 
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
-import './acs-options-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
+import './options/acs-options-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
 
 
 class AppCameraSystem extends AppElement {

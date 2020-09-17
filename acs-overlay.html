@@ -25,6 +25,13 @@
     width:  100%;
   }
 
+  #offscreencanvas {
+    position:  absolute;
+    top:       50%;
+    left:      50%;
+    transform: translate(-50%, -50%);
+  }
+
   #preview-img-wrapper,
   #flip {
     position: absolute;
@@ -162,6 +169,9 @@
                 on-app-camera-ready-changed="__readyChangedHandler"
                 on-app-camera-streaming-changed="__streamingChangedHandler"
                 on-app-camera-track-capabilities-changed="__trackCapabilitiesChangedHandler">
+
+      <canvas id="offscreencanvas"></canvas>
+
     </app-camera>
 
 

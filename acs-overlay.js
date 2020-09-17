@@ -44,7 +44,8 @@ import {blobToFile} from '@longlost/lambda/lambda.js';
 import {
   consumeEvent, 
   getBBox, 
-  schedule
+  schedule,
+  warn
 } from '@longlost/utils/utils.js';
 
 // `o9n` is a screen orientation ponyfill.
@@ -226,6 +227,7 @@ class ACSOverlay extends AppElement {
       '__albumUidChanged(_albumUid)',
       '__imgClickedRippledChanged(_imgClicked, _imgRippled)',
       '__openedChanged(_opened)',
+      '__readyChanged(_ready)',
       '__streamingChanged(_streaming)',
       '__userOpenedSrcChanged(user, _opened, _src)'
     ];
@@ -375,6 +377,19 @@ class ACSOverlay extends AppElement {
     }
 
     this.fire('camera-overlay-opened-changed', {value: opened});
+  }
+
+
+  __readyChanged(ready) {
+    if (ready) {
+
+
+      // TODO:
+      //      add conditional for stickers vs effects vs none.
+
+
+      this.__addStickers();
+    }    
   }
 
 
@@ -658,6 +673,40 @@ class ACSOverlay extends AppElement {
     catch (error) {
       if (error === 'click debounced') { return; }
       console.error(error);
+    }
+  }
+
+
+  async __addStickers() {
+    try {
+
+      const stickers = await import(
+        /* webpackChunkName: 'app-camera-system-face-stickers' */ 
+        './ml/face-stickers.js'
+      );
+
+      const {height, width} = this.$.cam.getVideoMeasurements();
+
+      this.$.offscreencanvas.height = Math.round(height);
+      this.$.offscreencanvas.width  = Math.round(width);
+
+      const offscreencanvas = this.$.offscreencanvas.transferControlToOffscreen();  
+      const mirror          = this._camera === 'user';      
+
+      await stickers.init(offscreencanvas);
+
+
+      while (this._ready && this._streaming) {       
+
+        const frame = await this.grabFrame();
+
+        await stickers.predict(frame, mirror);
+      }
+    }
+    catch (error) {
+      console.error(error);
+
+      warn(`Uh oh! That sticker isn't working.`);
     }
   }
 

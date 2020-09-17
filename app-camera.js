@@ -322,6 +322,11 @@ class AppCamera extends ZoomMixin(AppElement) {
     });
   }
 
+
+  getVideoMeasurements() {
+    return this.select('video', this.$.video).getBoundingClientRect();
+  }
+
   // Returns a promise that resolves to an ImageBitmap.
   grabFrame() {
     return this.$.capture.grabFrame();

@@ -16,14 +16,38 @@ import {
   MeshStandardMaterial,
 } from 'three/build/three.module.js';
 
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 import {FaceMeshFaceGeometry} from './facemesh-three-geometry.js';
 
 
 // Create a new geometry helper.
 const faceGeometry = new FaceMeshFaceGeometry();
+const loader 			 = new GLTFLoader();
+
+// String --> Promise --> Object/Error
+//
+// The single argument is a url or path string pointing
+// to a .gltf or .glb file.
+//
+// The returned promise resolves to a gltf three.js object.
+// The returned promise fails with an error object.
+//
+//
+// loader.load( 'path/to/model.glb', function ( gltf ) {
+// 	scene.add( gltf.scene );
+// }, undefined, function ( error ) {
+// 	console.error( error );
+// } );
+//
+const loadGLTF = url => {
+	return new Promise((resolve, reject) => {
+		loader.load(url, resolve, undefined, reject);
+	});
+};
 
 
-export default (canvas, width, height) => {
+export default async (canvas, width, height) => {
 
 	// Set a background color, or change alpha to false for a solid canvas.
 	const renderer = new WebGLRenderer({
@@ -35,6 +59,11 @@ export default (canvas, width, height) => {
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type 	 = PCFSoftShadowMap;
 	renderer.outputEncoding 	 = sRGBEncoding;
+
+
+	// const gltf = await loadGLTF('images/test.gltf');
+
+
 
 	const scene  = new Scene();
 	const camera = new OrthographicCamera(1, 1, 1, 1, -1000, 1000);
@@ -107,9 +136,13 @@ export default (canvas, width, height) => {
 
 	const nose = new Mesh(new IcosahedronGeometry(1, 3), noseMaterial);
 
+	// const nose = gltf.scene;
+
 	nose.castShadow = nose.receiveShadow = true;
 	scene.add(nose);
 	nose.scale.setScalar(40);
+	
+	// nose.scale.setScalar(20);
 	
 
 	const render = faces => {

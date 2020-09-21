@@ -680,27 +680,34 @@ class ACSOverlay extends AppElement {
   async __addStickers() {
     try {
 
-      const stickers = await import(
-        /* webpackChunkName: 'app-camera-system-face-stickers' */ 
-        './ml/face-stickers.js'
+      const ml = await import(
+        /* webpackChunkName: 'app-camera-system-face-ml' */ 
+        './ml/face-ml.js'
       );
 
       const {height, width} = this.$.cam.getVideoMeasurements();
-
-      this.$.offscreencanvas.height = Math.round(height);
-      this.$.offscreencanvas.width  = Math.round(width);
-
       const offscreencanvas = this.$.offscreencanvas.transferControlToOffscreen();  
-      const mirror          = this._camera === 'user';      
+      const mirror          = this._camera === 'user'; 
 
-      await stickers.init(offscreencanvas);
+
+      // await ml.init(offscreencanvas, { 
+      //   height: Math.round(height),
+      //   width: Math.round(width),
+      //   mode:            'test'
+      // });
+
+      await ml.init(offscreencanvas, {
+        height: Math.round(height),
+        width: Math.round(width),
+        mode:            'stickers'
+      });
 
 
       while (this._ready && this._streaming) {       
 
         const frame = await this.grabFrame();
 
-        await stickers.predict(frame, mirror);
+        await ml.predict(frame, mirror);
       }
     }
     catch (error) {

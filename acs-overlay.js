@@ -698,8 +698,8 @@ class ACSOverlay extends AppElement {
 
       await ml.init(offscreencanvas, {
         height: Math.round(height),
-        width: Math.round(width),
-        mode:            'stickers'
+        width:  Math.round(width),
+        mode:  'stickers'
       });
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@longlost/app-camera",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
   "scripts": {
@@ -38,12 +38,12 @@
     "@polymer/paper-ripple": "^3.0.2",
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/polymer": "^3.4.1",
-    "@tensorflow-models/facemesh": "^0.0.4",
-    "@tensorflow/tfjs": "^2.4.0",
+    "@tensorflow-models/face-landmarks-detection": "^0.0.1",
+    "@tensorflow/tfjs": "^2.6.0",
     "comlink": "^4.3.0",
     "mime-types": "^2.1.27",
     "o9n": "^2.1.0",
-    "three": "^0.120.1"
+    "three": "^0.121.1"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.1.0",

@@ -6,10 +6,8 @@ import * as Comlink  from 'comlink';
 
 let workerRunner;
 
-export const init = async (offscreencanvas, options = {
-  maxFaces: 4,
-  mode:    'test'
-}) => {
+
+export const init = async (offscreencanvas, options) => {
 
   if (!workerRunner) {
 
@@ -21,7 +19,7 @@ export const init = async (offscreencanvas, options = {
     // workerRunner = await runner(Worker);
 
 
-
+    // Testing...
     workerRunner = await runner(Worker, {idle: 1000000000});
 
 

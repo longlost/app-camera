@@ -1,13 +1,10 @@
 
 
-import * as Comlink  from 'comlink';
-import * as tf       from '@tensorflow/tfjs-core';
-import * as facemesh from '@tensorflow-models/facemesh';
+import * as Comlink                from 'comlink';
+import * as tf                     from '@tensorflow/tfjs-core';
+import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import '@tensorflow/tfjs-backend-webgl';
 
-
-const RETURN_TENSORS = false;
-const PREDICT_IRISES = true;
 
 const bitmapOffscreenCanvas = new OffscreenCanvas(640, 480);
 const bitmapOffscreenCtx    = bitmapOffscreenCanvas.getContext('2d');
@@ -91,14 +88,20 @@ const init = async ({offscreencanvas}, options) => {
   bitmapOffscreenCanvas.width  = width;
   bitmapOffscreenCanvas.height = height;
 
-  const rendererObj = await getRenderer(options);
+  const rendererObj = await getRenderer({mode: 'test', ...options});
 
   renderer = rendererObj.renderer;
   resizer  = rendererObj.resizer;
 
   await tf.setBackend('webgl');
 
-  model = await facemesh.load(options);
+  model = await faceLandmarksDetection.load(
+    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh, 
+    {
+      maxFaces: 1, // 10 max.
+      ...options
+    }
+  );
 };
 
 
@@ -106,7 +109,10 @@ const predict = async ({frame}, mirror) => {
 
   const bitmapCanvas = bitmapToCanvas(frame);
 
-  const predictions = await model.estimateFaces(bitmapCanvas, RETURN_TENSORS, mirror, PREDICT_IRISES);
+  const predictions = await model.estimateFaces({
+    input:          bitmapCanvas, 
+    flipHorizontal: mirror
+  });
 
   if (predictions.length > 0) {
     renderer(predictions);

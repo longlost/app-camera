@@ -6,12 +6,18 @@ import {
   CanvasTexture,
 	DoubleSide,
   HemisphereLight,
-  // IcosahedronGeometry,
-  OrthographicCamera,
-  Mesh,
-  // MeshBasicMaterial,
 
-  MeshPhongMaterial,
+  // IcosahedronGeometry,
+
+  OrthographicCamera,
+
+  // PerspectiveCamera,
+
+  Mesh,
+
+  // MeshBasicMaterial, // For debugging mesh.
+
+  // MeshPhongMaterial, // More performant but lighting is not as realistic.
   MeshStandardMaterial,
 
   PCFSoftShadowMap,
@@ -38,16 +44,19 @@ const loader 			 = new GLTFLoader();
 // The returned promise resolves to a gltf three.js object.
 // The returned promise fails with an error object.
 //
-//
-// loader.load( 'path/to/model.glb', function ( gltf ) {
-// 	scene.add( gltf.scene );
-// }, undefined, function ( error ) {
-// 	console.error( error );
-// } );
-//
 // Used to add 3d assets with bones that track along with the face.
 const loadGLTF = url => {
 	return new Promise((resolve, reject) => {
+
+		// Args --> path to model, loaded callback, progress callback, error callback.
+		//
+		// From Three.js docs...
+		//
+		// loader.load( 'path/to/model.glb', function ( gltf ) {
+		// 	 scene.add( gltf.scene );
+		// }, undefined, function ( error ) {
+		// 	 console.error( error );
+		// } );
 		loader.load(url, resolve, undefined, reject);
 	});
 };
@@ -87,6 +96,8 @@ const addDebuggingWireframe = (faceGeometry, scene) => {
 	mask.castShadow 	 = true;
 
 	scene.add(mask);
+
+	return mask;
 };
 
 // Create a whole-face mask material for debugging.
@@ -118,6 +129,8 @@ const addDebuggingMask = async (faceGeometry, scene) => {
 	mask.castShadow 	 = true;	
 
 	scene.add(mask);
+
+	return mask;
 };
 
 // Create a red material for the nose.
@@ -146,7 +159,7 @@ const addDebuggingNose = scene => {
 const addCustomTexturedMask = async (faceGeometry, scene, url) => {
 
 	// TextureLoader does not work in a worker context.
-	const colorTexture = await loadImageTexture('images/test_sticker.png');
+	const colorTexture = await loadImageTexture(url);
 
 	// Create material for mask.
 	const material = new MeshStandardMaterial({
@@ -220,22 +233,29 @@ export default async (canvas, width, height) => {
 	renderer.outputEncoding 	 = sRGBEncoding;
 
 
-
-	// const gltf = await loadGLTF('images/test.gltf');
-
-
-
 	const scene  = new Scene();
 	const camera = new OrthographicCamera(1, 1, 1, 1, -1000, 1000);
+
+
+	// const camera = new PerspectiveCamera(90, width / height, 0.1, 1000);
+	// camera.position.set(0, 0, 500);
+
+
 
 	const resize = (w, h) => {
 	  width  = w;
 	  height = h;
 
+	  // Orthographic camera.
     camera.left 	= -0.5 * width;
     camera.right 	=  0.5 * width;
     camera.top 		=  0.5 * height;
     camera.bottom = -0.5 * height;
+
+    // Perspective camera.
+    // camera.aspect = width / height;
+
+
     camera.updateProjectionMatrix();
 
     renderer.setSize(width, height, false);
@@ -247,7 +267,7 @@ export default async (canvas, width, height) => {
 	
 
 	// // Create wireframe material for debugging.
-	// addDebuggingWireframe(faceGeometry, scene);
+	// const mask = addDebuggingWireframe(faceGeometry, scene);
 
 	// // Create a whole-face mask material for debugging.
 	// await addDebuggingMask(faceGeometry, scene);
@@ -255,8 +275,22 @@ export default async (canvas, width, height) => {
 	// // Create a red material for the nose.
 	// const nose = addDebuggingNose(scene);
 
+
+
 	// Create a mask material that is textured by an image.
 	await addCustomTexturedMask(faceGeometry, scene, 'images/test_sticker.png');
+
+
+	// Load, add and track custom stickers.
+	const gltf 		 = await loadGLTF('images/fox_ears.glb');
+	const stickers = gltf.scene;
+
+  stickers.castShadow 	 = true;
+  stickers.receiveShadow = true;
+  stickers.scale.setScalar(1000);
+  scene.add(stickers);
+
+
 
 	// Add lights.
 	addLighting(scene);	
@@ -271,6 +305,14 @@ export default async (canvas, width, height) => {
     // const track = faceGeometry.track(5, 45, 275);
     // nose.position.copy(track.position);
     // nose.rotation.setFromRotationMatrix(track.rotation);
+
+
+    // Modify stickers position and orientation.
+    const {position, rotation} = faceGeometry.track(5, 45, 275);
+
+    stickers.position.copy(position);
+    stickers.rotation.setFromRotationMatrix(rotation);
+
 	    
 	  renderer.render(scene, camera);
 	};

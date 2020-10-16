@@ -12,8 +12,8 @@ export const init = async (offscreencanvas, options) => {
   if (!workerRunner) {
 
     const {default: Worker} = await import(
-      /* webpackChunkName: 'app-camera-system-face-ml-worker' */ 
-      './face-ml.worker.js'
+      /* webpackChunkName: 'app-camera-system-face-ar-worker' */ 
+      './face-ar.worker.js'
     );
 
     // workerRunner = await runner(Worker);
@@ -36,4 +36,34 @@ export const predict = (frame, mirror) => {
   }
 
   return workerRunner('predict', Comlink.transfer({frame}, [frame]), mirror);  
+};
+
+// Resize the 3d scene and camera.
+export const resize = () => {
+
+  if (!workerRunner) {
+    throw new Error(`'init' MUST be called before 'resize'!`);
+  }
+
+  return workerRunner('resize');
+};
+
+// Set a custom face mask texture.
+export const faceMask = () => {
+
+  if (!workerRunner) {
+    throw new Error(`'init' MUST be called before 'faceMask'!`);
+  }
+
+  return workerRunner('faceMask');  
+};
+
+// Set custom 3d sticker model(s).
+export const stickers = () => {
+
+  if (!workerRunner) {
+    throw new Error(`'init' MUST be called before 'stickers'!`);
+  }
+
+  return workerRunner('stickers');  
 };

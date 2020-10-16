@@ -3,10 +3,15 @@
 import * as Comlink                from 'comlink';
 import * as tf                     from '@tensorflow/tfjs-core';
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
+import '@tensorflow/tfjs-backend-cpu';
 import '@tensorflow/tfjs-backend-webgl';
 
 
-const bitmapOffscreenCanvas = new OffscreenCanvas(640, 480);
+const DEFAULT_WIDTH  = 640;
+const DEFAULT_HEIGHT = 480;
+
+
+const bitmapOffscreenCanvas = new OffscreenCanvas(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 const bitmapOffscreenCtx    = bitmapOffscreenCanvas.getContext('2d');
 
 let canvas;
@@ -14,6 +19,14 @@ let context;
 let model;
 let renderer;
 let resizer;
+let setFaceMask;
+let setStickers;
+
+
+const sizeBitmapCanvas = ({height = DEFAULT_HEIGHT, width = DEFAULT_WIDTH}) => {
+  bitmapOffscreenCanvas.width  = Math.round(width);
+  bitmapOffscreenCanvas.height = Math.round(height);
+};
 
 
 const bitmapToCanvas = bitmap => {  
@@ -50,48 +63,50 @@ const drawFullMeshPoints = predictions => {
 };
 
 
-const getRenderer = async options => {
-
-  const {height, mode, width} = options;
+const getRenderer = async ({
+  height = DEFAULT_HEIGHT, 
+  mode   = 'test', 
+  width  = DEFAULT_WIDTH
+}) => {
 
   if (mode === 'test') {
 
     context = canvas.getContext('2d');
 
-    const resize = (w, h) => {
-      canvas.width  = w;
-      canvas.height = h;
+    const resize = size => {
+      canvas.width  = Math.round(size.width);
+      canvas.height = Math.round(size.height);
     };
 
-    resize(width, height);
+    resize({width, height});
 
     return {renderer: drawFullMeshPoints, resizer: resize};
   }
 
   if (mode === 'stickers') {
-    const {default: stickers} = await import(
-      /* webpackChunkName: 'app-camera-system-face-ml-stickers' */ 
+    const {default: stickersAR} = await import(
+      /* webpackChunkName: 'app-camera-system-face-ar-stickers' */ 
       './stickers.js'
     );
 
-    return stickers(canvas, width, height);
+    return stickersAR(canvas, width, height);
   }
 };
 
 
-const init = async ({offscreencanvas}, options) => {
-  const {height, width} = options;
+const init = async ({offscreencanvas}, options = {}) => {
 
   canvas = offscreencanvas;
 
   // Normalize output to input sizes.
-  bitmapOffscreenCanvas.width  = width;
-  bitmapOffscreenCanvas.height = height;
+  sizeBitmapCanvas(options);
 
-  const rendererObj = await getRenderer({mode: 'test', ...options});
+  const rendererObj = await getRenderer(options);
 
-  renderer = rendererObj.renderer;
-  resizer  = rendererObj.resizer;
+  renderer    = rendererObj.renderer;
+  resizer     = rendererObj.resizer;
+  setFaceMask = rendererObj.setFaceMask;
+  setStickers = rendererObj.setStickers;
 
   await tf.setBackend('webgl');
 
@@ -119,10 +134,24 @@ const predict = async ({frame}, mirror) => {
   }
 };
 
-// A seperate function since resizer is set late, after init.
-const resize = (...args) => {
-  resizer(...args);
-};
+// A seperate proxied function since resizer is set late, after init.
+const resize = () => Comlink.proxy(options => {
+
+  // Normalize output to input sizes.
+  sizeBitmapCanvas(options);
+
+  resizer(options);
+});
+
+// A seperate proxied function since setFaceMask is set late, after init.
+const faceMask = () => Comlink.proxy(options => {
+  return setFaceMask(options);
+});
+
+// A seperate proxied function since setStickers is set late, after init.
+const stickers = () => Comlink.proxy(options => {
+  return setStickers(options);
+});
 
 
-Comlink.expose({init, predict, resize});
+Comlink.expose({faceMask, init, predict, resize, stickers});

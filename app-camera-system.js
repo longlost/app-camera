@@ -84,6 +84,9 @@ class AppCameraSystem extends AppElement {
         value: 'user' // Or 'environment'. 
       },
 
+      // Include AR filters, stickers, effects for the human face.
+      faceAr: Boolean,
+
       user: Object,
 
       _album: {

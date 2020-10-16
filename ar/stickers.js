@@ -15,7 +15,7 @@ import {
 
   Mesh,
 
-  // MeshBasicMaterial, // For debugging mesh.
+  MeshBasicMaterial, // For debugging mesh.
 
   // MeshPhongMaterial, // More performant but lighting is not as realistic.
   MeshStandardMaterial,
@@ -61,6 +61,36 @@ const loadGLTF = url => {
 	});
 };
 
+// Recurse through all objects in the GLTF scene that require memory management.
+const cleanupGLTFScene = scene => {
+	const cleanup = obj => {
+
+		const {children, geometry, material, texture} = obj;
+
+		if (geometry) {
+			geometry.dispose();
+		}
+
+		if (material) {
+			material.dispose();
+		}
+
+		if (texture) {
+			texture.dispose();
+		}
+
+		if (children && children.length > 0) {
+			children.forEach(child => {
+				obj.remove(child);
+				cleanup(child);
+			});
+		}
+	};
+
+	cleanup(scene);
+};
+
+// Three.js TextureLoader does not work in a worker context.
 // Used to create custom textured face mask materials.
 const loadImageTexture = async url => {
 
@@ -103,10 +133,16 @@ const addDebuggingWireframe = (faceGeometry, scene) => {
 // Create a whole-face mask material for debugging.
 const addDebuggingMask = async (faceGeometry, scene) => {
 
+	const [meshMap, ambientOcclusion, alphaMask] = await Promise.all([
+		import(/* webpackChunkName: 'app-camera-system-ar-mesh-img' */ './assets/mesh_map.jpg'),
+		import(/* webpackChunkName: 'app-camera-system-ar-ao-img' */ 	 './assets/ao.jpg'),
+		import(/* webpackChunkName: 'app-camera-system-ar-mask-img' */ './assets/mask.png')
+	]);
+
 	const [colorTexture, aoTexture, alphaTexture] = await Promise.all([
-		loadImageTexture('images/mesh_map.jpg'),
-		loadImageTexture('images/ao.jpg'),
-		loadImageTexture('images/mask.png')
+		loadImageTexture(meshMap.src),
+		loadImageTexture(ambientOcclusion.src),
+		loadImageTexture(alphaMask.src)
 	]);
 
 	// Create material for mask.
@@ -156,18 +192,27 @@ const addDebuggingNose = scene => {
 };
 
 
-const addCustomTexturedMask = async (faceGeometry, scene, url) => {
+const createCustomTexturedMask = async (faceGeometry, url, fadeEdges) => {
 
-	// TextureLoader does not work in a worker context.
-	const colorTexture = await loadImageTexture(url);
+	const alphaMask = fadeEdges ? 
+		await import(/* webpackChunkName: 'app-camera-system-ar-mask-img' */ './assets/mask.png') :
+		undefined;
+
+	const alphaPromise = fadeEdges ? loadImageTexture(alphaMask.src) : Promise.resolve(null);
+
+	const [colorTexture, alphaTexture] = await Promise.all([
+		loadImageTexture(url),
+		alphaPromise
+	]);
 
 	// Create material for mask.
 	const material = new MeshStandardMaterial({
-	  roughness: 		0.5, // Default: 1.0 - 0.0 is smooth, fully reflective surface, 1.0 is fully diffuse
-	  metalness: 		0.3, // Default: 0.0 - Wood or stone would be 0.0, 1.0 is metalic surface.
-	  map: 					colorTexture,
-	  transparent: 	true,
-	  side: 				DoubleSide
+		alphaMap: 	 alphaTexture,
+	  map: 				 colorTexture,
+	  metalness: 	 0.3, // Default: 0.0 - Wood or stone would be 0.0, 1.0 is metalic surface.
+	  roughness: 	 0.5, // Default: 1.0 - 0.0 is smooth, fully reflective surface, 1.0 is fully diffuse
+	  side: 			 DoubleSide,
+	  transparent: true
 	});
 
 	// // Create material for mask.
@@ -181,12 +226,12 @@ const addCustomTexturedMask = async (faceGeometry, scene, url) => {
 
 
 	// Create mask mesh.
-	const mask = new Mesh(faceGeometry, material);
+	const mesh = new Mesh(faceGeometry, material);
 
-	mask.receiveShadow = true;
-	mask.castShadow 	 = true;
+	mesh.receiveShadow = true;
+	mesh.castShadow 	 = true;
 
-	scene.add(mask);
+	return {alphaTexture, colorTexture, mesh, material};
 };
 	
 
@@ -241,56 +286,81 @@ export default async (canvas, width, height) => {
 	// camera.position.set(0, 0, 500);
 
 
-
-	const resize = (w, h) => {
-	  width  = w;
-	  height = h;
+	const resize = size => {
+		
+	  const w = Math.round(size.width);
+	  const h = Math.round(size.height);
 
 	  // Orthographic camera.
-    camera.left 	= -0.5 * width;
-    camera.right 	=  0.5 * width;
-    camera.top 		=  0.5 * height;
-    camera.bottom = -0.5 * height;
+    camera.left 	= -0.5 * w;
+    camera.right 	=  0.5 * w;
+    camera.top 		=  0.5 * h;
+    camera.bottom = -0.5 * h;
 
     // Perspective camera.
-    // camera.aspect = width / height;
+    // camera.aspect = w / h;
 
 
     camera.updateProjectionMatrix();
 
-    renderer.setSize(width, height, false);
-    faceGeometry.setSize(width, height);
+    renderer.setSize(w, h, false);
+    faceGeometry.setSize(w, h);
 	};
 	
-	resize(width, height);
+	resize({height, width});
 	renderer.render(scene, camera);
+
+	let mask;
+	let stickers;
+	let nose;
 	
 
 	// // Create wireframe material for debugging.
-	// const mask = addDebuggingWireframe(faceGeometry, scene);
+	// mask = addDebuggingWireframe(faceGeometry, scene);
 
 	// // Create a whole-face mask material for debugging.
 	// await addDebuggingMask(faceGeometry, scene);
 
 	// // Create a red material for the nose.
-	// const nose = addDebuggingNose(scene);
-
+	// nose = addDebuggingNose(scene);
 
 
 	// Create a mask material that is textured by an image.
-	await addCustomTexturedMask(faceGeometry, scene, 'images/test_sticker.png');
+	const setFaceMask = async ({url = 'images/test_sticker.png', fadeEdges = false} = {}) => {
+
+		// Clean up old mask.
+		if (mask) {
+			scene.remove(mask.mesh);
+			mask.material.dispose();
+			mask.colorTexture.dispose();
+
+			if (mask.alphaTexture) {
+				mask.alphaTexture.dispose();
+			}
+		}
+
+		mask = await createCustomTexturedMask(faceGeometry, url, fadeEdges);
+
+		scene.add(mask.mesh);
+	};
 
 
-	// Load, add and track custom stickers.
-	const gltf 		 = await loadGLTF('images/fox_ears.glb');
-	const stickers = gltf.scene;
+	const setStickers = async (url = 'images/fox_ears.glb') => {
 
-  stickers.castShadow 	 = true;
-  stickers.receiveShadow = true;
-  stickers.scale.setScalar(1000);
-  scene.add(stickers);
+		if (stickers) {
+			scene.remove(stickers);
+			cleanupGLTFScene(stickers);
+		}
 
+		// Load, add and track custom stickers.
+		const gltf = await loadGLTF('images/fox_ears.glb');
+		stickers 	 = gltf.scene;
 
+	  stickers.castShadow 	 = true;
+	  stickers.receiveShadow = true;
+	  stickers.scale.setScalar(1000);
+	  scene.add(stickers);
+	};
 
 	// Add lights.
 	addLighting(scene);	
@@ -301,21 +371,26 @@ export default async (canvas, width, height) => {
     // Update face mesh geometry with new data.
     faceGeometry.update(faces[0]);
 
-    // // Modify nose position and orientation.
-    // const track = faceGeometry.track(5, 45, 275);
-    // nose.position.copy(track.position);
-    // nose.rotation.setFromRotationMatrix(track.rotation);
+    if (nose) {
 
+	    // Modify nose position and orientation.
+	    const {position, rotation} = faceGeometry.track(5, 45, 275);
 
-    // Modify stickers position and orientation.
-    const {position, rotation} = faceGeometry.track(5, 45, 275);
+	    nose.position.copy(position);
+	    nose.rotation.setFromRotationMatrix(rotation);
+    }
 
-    stickers.position.copy(position);
-    stickers.rotation.setFromRotationMatrix(rotation);
+    if (stickers) {
 
+	    // Modify stickers position and orientation.
+	    const {position, rotation} = faceGeometry.track(5, 45, 275);
+
+	    stickers.position.copy(position);
+	    stickers.rotation.setFromRotationMatrix(rotation);
+    }
 	    
 	  renderer.render(scene, camera);
 	};
 
-	return {renderer: render, resizer: resize};
+	return {renderer: render, resizer: resize, setFaceMask, setStickers};
 };

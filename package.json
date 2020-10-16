@@ -38,7 +38,7 @@
     "@polymer/paper-ripple": "^3.0.2",
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/polymer": "^3.4.1",
-    "@tensorflow-models/face-landmarks-detection": "^0.0.1",
+    "@tensorflow-models/face-landmarks-detection": "^0.0.2",
     "@tensorflow/tfjs": "^2.6.0",
     "comlink": "^4.3.0",
     "mime-types": "^2.1.27",

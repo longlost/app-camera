@@ -39,19 +39,21 @@ import {
   html
 } from '@longlost/app-element/app-element.js';
 
+import {ArMixin} from './ar-mixin.js';
+
 import {blobToFile} from '@longlost/lambda/lambda.js';
 
 import {
   consumeEvent, 
   getBBox, 
-  schedule,
-  warn
+  schedule
 } from '@longlost/utils/utils.js';
 
 // `o9n` is a screen orientation ponyfill.
 // It normalizes the output of different browsers, 
 // namely Safari, which is an outlier that hasn't
 // adopted the ScreenOrientation api spec.
+//
 // https://github.com/chmanie/o9n
 import {orientation} from 'o9n'; 
 
@@ -69,7 +71,7 @@ import './app-camera.js';
 import './app-camera-icons.js';
 
 
-class ACSOverlay extends AppElement {
+class ACSOverlay extends ArMixin(AppElement) {
   static get is() { return 'acs-overlay'; }
 
   static get template() {
@@ -227,7 +229,6 @@ class ACSOverlay extends AppElement {
       '__albumUidChanged(_albumUid)',
       '__imgClickedRippledChanged(_imgClicked, _imgRippled)',
       '__openedChanged(_opened)',
-      '__readyChanged(_ready)',
       '__streamingChanged(_streaming)',
       '__userOpenedSrcChanged(user, _opened, _src)'
     ];
@@ -238,12 +239,12 @@ class ACSOverlay extends AppElement {
     super.connectedCallback();
 
     this.__getOrientation  = this.__getOrientation.bind(this);
-    this.__getMeasurements = this.__getMeasurements.bind(this);
+    this.__resize          = this.__resize.bind(this);
 
     this.__getOrientation();
 
     orientation.addEventListener('change', this.__getOrientation);
-    window.addEventListener(     'resize', this.__getMeasurements);
+    window.addEventListener(     'resize', this.__resize);
   }
 
 
@@ -251,7 +252,7 @@ class ACSOverlay extends AppElement {
     super.disconnectedCallback();
 
     orientation.removeEventListener('change', this.__getOrientation);
-    window.removeEventListener(     'resize', this.__getMeasurements);    
+    window.removeEventListener(     'resize', this.__resize);   
   }
 
 
@@ -380,19 +381,6 @@ class ACSOverlay extends AppElement {
   }
 
 
-  __readyChanged(ready) {
-    if (ready) {
-
-
-      // TODO:
-      //      add conditional for stickers vs effects vs none.
-
-
-      this.__addStickers();
-    }    
-  }
-
-
   __streamingChanged(streaming) {
     this.fire('camera-overlay-streaming-changed', {value: streaming});
   }
@@ -476,6 +464,15 @@ class ACSOverlay extends AppElement {
     if (!this._opened) { return; }
 
     this._measurements = getBBox(this.$.overlay);
+  }
+
+
+  async __resize() {
+    this.__getMeasurements();
+
+    await schedule();
+
+    this.__arResize(this.$.cam.getVideoMeasurements());
   }
 
 
@@ -673,47 +670,6 @@ class ACSOverlay extends AppElement {
     catch (error) {
       if (error === 'click debounced') { return; }
       console.error(error);
-    }
-  }
-
-
-  async __addStickers() {
-    try {
-
-      const ml = await import(
-        /* webpackChunkName: 'app-camera-system-face-ml' */ 
-        './ml/face-ml.js'
-      );
-
-      const {height, width} = this.$.cam.getVideoMeasurements();
-      const offscreencanvas = this.$.offscreencanvas.transferControlToOffscreen();  
-      const mirror          = this._camera === 'user'; 
-
-
-      // await ml.init(offscreencanvas, { 
-      //   height: Math.round(height),
-      //   width: Math.round(width),
-      //   mode:            'test'
-      // });
-
-      await ml.init(offscreencanvas, {
-        height: Math.round(height),
-        width:  Math.round(width),
-        mode:  'stickers'
-      });
-
-
-      while (this._ready && this._streaming) {       
-
-        const frame = await this.grabFrame();
-
-        await ml.predict(frame, mirror);
-      }
-    }
-    catch (error) {
-      console.error(error);
-
-      warn(`Uh oh! That sticker isn't working.`);
     }
   }
 

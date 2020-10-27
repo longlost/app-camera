@@ -1,69 +1,81 @@
 
 
-import runner        from '@longlost/worker/runner.js';
-import * as Comlink  from 'comlink';
+import runner       from '@longlost/worker/runner.js';
+import * as Comlink from 'comlink';
 
 
-let workerRunner;
+let runWorker;
+let terminateWorker;
 
 
 export const init = async (offscreencanvas, options) => {
 
-  if (!workerRunner) {
+  if (!runWorker) {
 
     const {default: Worker} = await import(
       /* webpackChunkName: 'app-camera-system-face-ar-worker' */ 
       './face-ar.worker.js'
     );
 
-    // workerRunner = await runner(Worker);
+    const {run, terminate} = await runner(Worker, {terminateAfterIdle: false});
 
-
-    // Testing...
-    workerRunner = await runner(Worker, {idle: 1000000000});
-
-
+    runWorker       = run;
+    terminateWorker = terminate;
   }
 
-  return workerRunner('init', Comlink.transfer({offscreencanvas}, [offscreencanvas]), options);
+  return runWorker('init', Comlink.transfer({offscreencanvas}, [offscreencanvas]), options);
 };
 
 
 export const predict = (frame, mirror) => {
 
-  if (!workerRunner) {
+  if (!runWorker) {
     throw new Error(`'init' MUST be called before 'predict'!`);
   }
 
-  return workerRunner('predict', Comlink.transfer({frame}, [frame]), mirror);  
+  return runWorker('predict', Comlink.transfer({frame}, [frame]), mirror);  
 };
 
 // Resize the 3d scene and camera.
 export const resize = () => {
 
-  if (!workerRunner) {
+  if (!runWorker) {
     throw new Error(`'init' MUST be called before 'resize'!`);
   }
 
-  return workerRunner('resize');
+  return runWorker('resize');
 };
 
 // Set a custom face mask texture.
 export const faceMask = () => {
 
-  if (!workerRunner) {
+  if (!runWorker) {
     throw new Error(`'init' MUST be called before 'faceMask'!`);
   }
 
-  return workerRunner('faceMask');  
+  return runWorker('faceMask');  
 };
 
 // Set custom 3d sticker model(s).
 export const stickers = () => {
 
-  if (!workerRunner) {
+  if (!runWorker) {
     throw new Error(`'init' MUST be called before 'stickers'!`);
   }
 
-  return workerRunner('stickers');  
+  return runWorker('stickers');  
+};
+
+
+// Terminate the worker and GC resources.
+export const terminate = () => {
+
+  if (!runWorker) {
+    throw new Error(`'init' MUST be called before 'terminate'!`);
+  }
+
+  terminateWorker();
+
+  runWorker       = undefined;
+  terminateWorker = undefined;  
 };

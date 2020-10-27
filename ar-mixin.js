@@ -30,7 +30,7 @@
   **/
   
 
-import {warn} from '@longlost/utils/utils.js';
+import {schedule, warn} from '@longlost/utils/utils.js';
 
 
 export const ArMixin = superClass => {
@@ -43,7 +43,10 @@ export const ArMixin = superClass => {
 	      // Include AR filters, stickers, effects for the human face.
 	      faceAr: Boolean,
 
-	      // Set to true after ar assets have been loaed and initialized.
+	      // Set to true after ar assets have been initialized, before they have been loaded.
+	      _arInitialized: Boolean,
+
+	      // Set to true after ar assets have been initialized and loaded.
 	      _arReady: Boolean
 
 	    };
@@ -52,8 +55,8 @@ export const ArMixin = superClass => {
 
 	  static get observers() {
 	  	return [
-      	'__faceArOffscreenCanvasChanged(faceAr, _offscreencanvas)',
-      	'__readyChanged(_ready, _arReady)' 		
+      	'__faceArOpenedOffscreenCanvasChanged(faceAr, _opened, _offscreencanvas)',
+      	'__openedInitializedReadyChanged(_opened, _arInitialized, _ready, _arReady)' 		
 	  	];
 	  }
 
@@ -70,6 +73,9 @@ export const ArMixin = superClass => {
 	  // AR predict function. Set after initializing AR worker.
 	  __arPredict() {}
 
+	  // AR worker termination function. Set after initializing AR worker.
+	  __arTerminate() {}
+
 	  // Set/update mask texture. Set after initializing AR worker.
 	  __setFaceArMask() {}
 
@@ -77,8 +83,18 @@ export const ArMixin = superClass => {
 	  __setFaceArStickers() {}
 
 
-	  async __faceArOffscreenCanvasChanged(faceAr, canvas) {
-	    if (!faceAr || !canvas) { return; }
+	  __resetAR() {
+	  	this._arInitialized 		 = false;
+	  	this._arReady            = false;
+      this.__arResize          = undefined;
+      this.__arPredict         = undefined;
+      this.__setFaceArMask     = undefined;
+      this.__setFaceArStickers = undefined;
+	  }
+
+
+	  async __faceArOpenedOffscreenCanvasChanged(faceAr, opened, canvas) {
+	    if (!faceAr || !opened || !canvas) { return; }
 
 	    try {
 
@@ -99,13 +115,19 @@ export const ArMixin = superClass => {
 
 	      this.__arResize          = await ar.resize();
 	      this.__arPredict         = await ar.predict;
+	      this.__arTerminate 			 = await ar.terminate;
 	      this.__setFaceArMask     = await ar.faceMask();
 	      this.__setFaceArStickers = await ar.stickers();
+
+	      this._arInitialized = true;
 
 
 	      // TODO:
 	      //
 	      //      Build mask/sticker picker ui.
+
+	      if (!this.__setFaceArMask || !this.__setFaceArStickers) { return; }
+
 	      await this.__setFaceArMask();
 	      // await this.__setFaceArStickers();
 
@@ -113,11 +135,7 @@ export const ArMixin = superClass => {
 	      this._arReady = true;
 	    }
 	    catch (error) {
-	      this._arReady            = false;
-	      this.__arResize          = undefined;
-	      this.__arPredict         = undefined;
-	      this.__setFaceArMask     = undefined;
-	      this.__setFaceArStickers = undefined;
+	      this.__resetAR();
 
 	      console.error(error);
 
@@ -126,8 +144,14 @@ export const ArMixin = superClass => {
 	  }
 
 
-	  __readyChanged(ready, arReady) {
-	    if (ready && arReady) {
+	  __openedInitializedReadyChanged(opened, arInitialized, ready, arReady) {
+
+	  	if (!opened && arInitialized) {
+
+	      this.__arTerminate();
+	      this.__resetAR();
+	  	}
+	    else if (ready && arReady) {
 
 	      if (this.faceAr) {
 
@@ -135,13 +159,13 @@ export const ArMixin = superClass => {
 	        //      add conditional for stickers vs effects vs none.
 
 
-	        this.__startFaceAr();
+	        this.__startAr();
 	      }
-	    }    
+	    }  
 	  }
 
 
-	  async __startFaceAr() {
+	  async __startAr() {
 	    try {
 
 	      const {height, width} = this.$.cam.getVideoMeasurements();
@@ -149,14 +173,17 @@ export const ArMixin = superClass => {
 
 	      await this.__arResize({height, width});
 
-	      while (this._ready && this._streaming) {       
+	      while (this._ready && this._streaming) {
 
-	        const frame = await this.grabFrame();
-
+	        const frame = await this.grabFrame();	        
 	        await this.__arPredict(frame, mirror);
 	      }
 	    }
 	    catch (error) {
+
+	    	// Terminated early, so consume error.
+	    	if (!this._arReady) { return; }
+
 	      console.error(error);
 
 	      warn(`Uh oh! The AR feature isn't working.`);

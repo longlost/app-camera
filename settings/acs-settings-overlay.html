@@ -1,0 +1,49 @@
+
+<style>
+
+  #overlay {
+    padding: 0px;
+
+    --overlay-toolbar-background-color: rgba(33, 33, 33, 0.7);
+    --overlay-background-color:         transparent;
+    --overlay-toolbar-color:            var(--constant-light-text);
+    --overlay-toolbar-vignette-opacity: 0;
+  }
+
+  #overlay::before {
+    content:  ' ';
+    position: fixed;
+    top:      -128px;
+    right:    0px;
+    bottom:   -128px;
+    left:     0px;      
+
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter:         blur(10px);
+
+    background-color: rgba(33, 33, 33, 0.7);
+  }
+
+  #content {
+  	padding: 16px;
+  }
+
+</style>
+
+
+<app-header-overlay id="overlay"
+                    disable-background-effects
+                    header-size="2"
+                    prebuilt-animation="from-right"
+                    title="Settings"
+                    on-overlay-reset="__overlayResetHandler">
+                    
+
+  <div slot="content">
+  	
+  	<h3>Settings</h3>
+
+  </div>
+  
+
+</app-header-overlay>

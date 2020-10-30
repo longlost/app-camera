@@ -45,9 +45,12 @@ import {blobToFile} from '@longlost/lambda/lambda.js';
 
 import {
   consumeEvent, 
-  getBBox, 
+  getBBox,
+  getRootTarget, 
   schedule
 } from '@longlost/utils/utils.js';
+
+import timer from '@longlost/worker/timer.js';
 
 // `o9n` is a screen orientation ponyfill.
 // It normalizes the output of different browsers, 
@@ -66,6 +69,7 @@ import '@longlost/app-images/lazy-image.js';
 import '@longlost/app-overlays/app-overlay.js';
 import '@longlost/app-shared-styles/app-shared-styles.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
+import '@polymer/paper-progress/paper-progress.js';
 import '@polymer/paper-ripple/paper-ripple.js';
 import './app-camera.js';
 import './app-camera-icons.js';
@@ -220,6 +224,13 @@ class ACSOverlay extends ArMixin(AppElement) {
         value: false
       },
 
+      _uiIdleTime: {
+        type: Number,
+        value: 3000
+      },
+
+      _uiTimer: Object
+
     };
   }
 
@@ -240,8 +251,11 @@ class ACSOverlay extends ArMixin(AppElement) {
 
     this.__getOrientation  = this.__getOrientation.bind(this);
     this.__resize          = this.__resize.bind(this);
+    this.__uiTimerCallback = this.__uiTimerCallback.bind(this);
 
     this.__getOrientation();
+
+    this._uiTimer = timer();
 
     orientation.addEventListener('change', this.__getOrientation);
     window.addEventListener(     'resize', this.__resize);
@@ -250,6 +264,8 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+
+    this._uiTimer.stop();
 
     orientation.removeEventListener('change', this.__getOrientation);
     window.removeEventListener(     'resize', this.__resize);   
@@ -371,6 +387,7 @@ class ACSOverlay extends ArMixin(AppElement) {
   __openedChanged(opened) {
     if (opened) {
       this.__getMeasurements();
+      this.__startUiTimer();
       this.start();
     }
     else {
@@ -476,6 +493,17 @@ class ACSOverlay extends ArMixin(AppElement) {
   }
 
 
+  async __startUiTimer() {
+    this._uiTimer.start(this._uiIdleTime, this.__uiTimerCallback);
+
+    this.$.ui.style['display'] = 'block';
+
+    await schedule();
+
+    this.$.ui.classList.remove('hide-ui');
+  }
+
+
   __resetHandler() {
     this._opened = false;
   }
@@ -520,6 +548,42 @@ class ACSOverlay extends ArMixin(AppElement) {
     consumeEvent(event);
 
     this._trackCapabilities = event.detail.value;
+  }
+
+
+  __uiTimerCallback() {
+    this.$.ui.classList.add('hide-ui');
+  }
+
+
+  async __contentClicked() {
+    try {
+      await this.clicked();      
+
+      this.__startUiTimer();
+    }
+    catch (error) {
+      if (error === 'click debounced') { return; }
+      console.error(error);
+    }
+  }
+
+
+  __uiTransitionendHandler(event) {    
+    consumeEvent(event);
+
+    const target = getRootTarget(event);
+
+    if (
+      target.id          === 'ui'            && 
+      event.type         === 'transitionend' && 
+      event.propertyName === 'opacity'
+    ) {
+
+      if (this.$.ui.classList.contains('hide-ui')) {
+        this.$.ui.style['display'] = 'none';
+      }
+    }
   }
 
 
@@ -570,19 +634,6 @@ class ACSOverlay extends ArMixin(AppElement) {
     }
   }
 
-  
-  async __optionsBtnClicked() {
-    try {
-      await this.clicked();
-
-      this.fire('camera-overlay-open-options');
-    }
-    catch (error) {
-      if (error === 'click debounced') { return; }
-      console.error(error);
-    }
-  }
-
 
   async __flashBtnClicked() {
     try {
@@ -612,6 +663,19 @@ class ACSOverlay extends ArMixin(AppElement) {
       await this.clicked();
 
       this._torch = !this._torch;
+    }
+    catch (error) {
+      if (error === 'click debounced') { return; }
+      console.error(error);
+    }
+  }
+
+
+  async __settingsBtnClicked() {
+    try {
+      await this.clicked();
+
+      this.fire('camera-overlay-open-settings');
     }
     catch (error) {
       if (error === 'click debounced') { return; }
@@ -666,6 +730,25 @@ class ACSOverlay extends ArMixin(AppElement) {
       this._ready = false;
 
       this.$.cam.switchCamera();
+    }
+    catch (error) {
+      if (error === 'click debounced') { return; }
+      console.error(error);
+    }
+  }
+
+  
+  async __arBtnClicked() {
+    try {
+      await this.clicked();
+
+
+      // TODO:
+      // 
+      //      This should open the ar effects quick chooser
+
+      console.log('ar button clicked');
+
     }
     catch (error) {
       if (error === 'click debounced') { return; }

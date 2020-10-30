@@ -35,6 +35,7 @@
     "@polymer/iron-iconset-svg": "^3.0.1",
     "@polymer/paper-button": "^3.0.1",
     "@polymer/paper-icon-button": "^3.0.2",
+    "@polymer/paper-progress": "^3.0.1",
     "@polymer/paper-ripple": "^3.0.2",
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/polymer": "^3.4.1",
@@ -43,7 +44,7 @@
     "comlink": "^4.3.0",
     "mime-types": "^2.1.27",
     "o9n": "^2.1.0",
-    "three": "^0.121.1"
+    "three": "^0.122.0"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.1.0",

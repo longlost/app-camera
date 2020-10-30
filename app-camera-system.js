@@ -48,7 +48,8 @@ import {
 
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
-import './options/acs-options-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
+import './search/acs-ar-search-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
+import './settings/acs-settings-overlay.js';
 
 
 class AppCameraSystem extends AppElement {
@@ -140,10 +141,17 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  __openOptionsHandler(event) {
+  __openArSearchHandler(event) {
     hijackEvent(event);
 
-    this.select('#options').open();
+    this.select('#search').open();
+  }
+
+
+  __openSettingsHandler(event) {
+    hijackEvent(event);
+
+    this.select('#settings').open();
   }
 
   

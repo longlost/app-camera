@@ -32,6 +32,19 @@
     transform: translate(-50%, -50%);
   }
 
+  #ui {
+    position:   absolute;
+    top:        0px;
+    left:       0px;
+    height:     100%;
+    width:      100%;
+    transition: opacity 0.3s ease-out;
+  }
+
+  .hide-ui {
+    opacity: 0;
+  }
+
   #preview-img-wrapper,
   #flip {
     position: absolute;
@@ -139,6 +152,20 @@
     margin-left: 4px;
   }
 
+  #bottom-btns-wrapper {
+    display:         inline-flex;
+    align-items:     center;
+    position:        absolute;
+    bottom:          0px;
+    right:           0px;
+    height:          64px;
+    padding:         0px 16px;
+  }
+
+  #ar-btn {
+    margin-left: 16px;
+  }
+
   .capture-wrapper {
     border-radius: 50%;
   }
@@ -149,6 +176,16 @@
     padding: 4px;
   }
 
+  paper-progress {
+    position: absolute;
+    bottom:   0px;
+    left:     0px;
+    width:    100%;
+
+    --paper-progress-container-color: black;
+    --paper-progress-active-color:    var(--camera-overlay-ui-color);
+  }
+
 </style>
 
 
@@ -156,7 +193,8 @@
              prebuilt-animation="from-right"
              on-overlay-reset="__resetHandler">
 
-  <div id="content">
+  <div id="content"  
+       on-click="__contentClicked">
 
     <app-camera id="cam"
                 default-camera="[[defaultCamera]]"
@@ -175,74 +213,89 @@
     </app-camera>
 
 
-    <div id="preview-img-wrapper"
-         class$="[[_previewClass]]">
-      <div id="preview-container">
-        <lazy-image id="img"
-                    alt="Last camera capture."
-                    no-fade="[[_noFade]]"
-                    placeholder="[[_placeholder]]"
-                    src="[[_src]]"
-                    on-click="__imgClickHandler"
-                    on-lazy-image-loaded-changed="__srcLoadedHandler">
-        </lazy-image>
+    <div id="ui"
+         on-transitionend="__uiTransitionendHandler">
 
-        <paper-ripple on-transitionend="__rippleDoneHandler"></paper-ripple>
-      </div>
-    </div>
+      <div id="preview-img-wrapper"
+           class$="[[_previewClass]]">
+        <div id="preview-container">
+          <lazy-image id="img"
+                      alt="Last camera capture."
+                      no-fade="[[_noFade]]"
+                      placeholder="[[_placeholder]]"
+                      src="[[_src]]"
+                      on-click="__imgClickHandler"
+                      on-lazy-image-loaded-changed="__srcLoadedHandler">
+          </lazy-image>
 
-    <flip-image id="flip"
-                measurements="[[_measurements]]"
-                src="[[_capture]]">
-    </flip-image>
-
-
-    <div id="top-btns-wrapper">      
-
-      <div id="back-btn-wrapper"
-           class="shared-card-shadow btn-wrapper">
-        <paper-icon-button icon="app-icons:arrow-back"
-                           on-click="__backBtnClicked">
-        </paper-icon-button>
+          <paper-ripple on-transitionend="__rippleDoneHandler"></paper-ripple>
+        </div>
       </div>
 
+      <flip-image id="flip"
+                  measurements="[[_measurements]]"
+                  src="[[_capture]]">
+      </flip-image>
 
-      <div>
 
-        <div id="lighting-btn-wrapper" 
-             class="shared-card-shadow btn-wrapper"
-             hidden="[[_hideLightingBtns]]">      
+      <div id="top-btns-wrapper">      
+
+        <div id="back-btn-wrapper"
+             class="shared-card-shadow btn-wrapper">
+          <paper-icon-button icon="app-icons:arrow-back"
+                             on-click="__backBtnClicked">
+          </paper-icon-button>
+        </div>
+
+        <div>
+
+          <div id="lighting-btn-wrapper" 
+               class="shared-card-shadow btn-wrapper"
+               hidden="[[_hideLightingBtns]]">      
+            <paper-icon-button disabled="[[_btnDisabled]]"
+                               hidden="[[_hideFlashBtn]]"
+                               icon="[[_flashBtnIcon]]"
+                               on-click="__flashBtnClicked">
+            </paper-icon-button>
+            <paper-icon-button id="torch-btn"
+                               disabled="[[_btnDisabled]]"
+                               hidden="[[_hideTorchBtn]]"
+                               icon="app-camera-icons:highlight"
+                               on-click="__torchBtnClicked">
+            </paper-icon-button>
+          </div>
+
+          <!-- <div class="shared-card-shadow btn-wrapper">
+            <paper-icon-button icon="app-icons:settings"
+                               on-click="__settingsBtnClicked">
+            </paper-icon-button>
+          </div> -->
+
+        </div>
+
+      </div>
+
+
+      <div id="bottom-btns-wrapper">
+        
+        <div class="shared-card-shadow btn-wrapper"
+             hidden="[[_hideSwitchFaceBtn]]">
           <paper-icon-button disabled="[[_btnDisabled]]"
-                             hidden="[[_hideFlashBtn]]"
-                             icon="[[_flashBtnIcon]]"
-                             on-click="__flashBtnClicked">
-          </paper-icon-button>
-          <paper-icon-button id="torch-btn"
-                             disabled="[[_btnDisabled]]"
-                             hidden="[[_hideTorchBtn]]"
-                             icon="app-camera-icons:highlight"
-                             on-click="__torchBtnClicked">
+                             icon="[[_faceBtnIcon]]"
+                             on-click="__switchCameraBtnClicked">
           </paper-icon-button>
         </div>
 
-        <div class="shared-card-shadow btn-wrapper">
-          <paper-icon-button icon="app-camera-icons:camera-enhance"
-                             on-click="__optionsBtnClicked">
+        <div id="ar-btn" 
+             class="shared-card-shadow btn-wrapper">
+          <paper-icon-button icon="app-camera-icons:photo-filter"
+                             on-click="__arBtnClicked">
           </paper-icon-button>
         </div>
-
       </div>
 
     </div>
-
-
-    <div class="shared-card-shadow btn-wrapper content-btn-wrapper bottom-btn right-btn"
-         hidden="[[_hideSwitchFaceBtn]]">
-      <paper-icon-button disabled="[[_btnDisabled]]"
-                         icon="[[_faceBtnIcon]]"
-                         on-click="__switchCameraBtnClicked">
-      </paper-icon-button>
-    </div>
+      
 
     <div class$="shared-card-shadow btn-wrapper content-btn-wrapper capture-wrapper [[_captureBtnClass]]"
          hidden="[[noCapture]]">
@@ -252,6 +305,10 @@
                          on-click="__captureBtnClicked">
       </paper-icon-button>
     </div>
+
+    <paper-progress hidden="[[!_arLoading]]" 
+                    indeterminate="[[_arLoading]]">
+    </paper-progress>
 
   </div>
 

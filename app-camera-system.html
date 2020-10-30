@@ -13,15 +13,19 @@
                face-ar="[[faceAr]]"
                user="[[user]]"
                on-camera-overlay-album-uid-changed="__albumUidChangedHandler"
+               on-camera-overlay-open-ar-search="__openArSearchHandler"
                on-camera-overlay-open-camera-roll="__openCameraRollHandler"
-               on-camera-overlay-open-options="__openOptionsHandler"
+               on-camera-overlay-open-settings="__openSettingsHandler"
                on-camera-overlay-permission-denied="__openPermissionDeniedModalHandler"
                on-camera-overlay-opened-changed="__cameraOpenedChangedHandler"
                on-camera-overlay-save-capture="__saveCaptureHandler">
   </acs-overlay>
 
 
-  <acs-options-overlay id="options"></acs-options-overlay>
+  <acs-ar-search-overlay id="search"></acs-ar-search-overlay>
+
+
+  <acs-settings-overlay id="settings"></acs-settings-overlay>
 
 
   <acs-permission-denied-modal id="denied"></acs-permission-denied-modal>

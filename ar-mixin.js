@@ -30,7 +30,7 @@
   **/
   
 
-import {schedule, warn} from '@longlost/utils/utils.js';
+import {warn} from '@longlost/utils/utils.js';
 
 
 export const ArMixin = superClass => {
@@ -47,7 +47,10 @@ export const ArMixin = superClass => {
 	      _arInitialized: Boolean,
 
 	      // Set to true after ar assets have been initialized and loaded.
-	      _arReady: Boolean
+	      _arReady: Boolean,
+
+	      // Controls loading ui elements' state.
+      	_arLoading: Boolean
 
 	    };
 	  }
@@ -86,6 +89,7 @@ export const ArMixin = superClass => {
 	  __resetAR() {
 	  	this._arInitialized 		 = false;
 	  	this._arReady            = false;
+	  	this._arLoading 	 			 = false;
       this.__arResize          = undefined;
       this.__arPredict         = undefined;
       this.__setFaceArMask     = undefined;
@@ -97,6 +101,8 @@ export const ArMixin = superClass => {
 	    if (!faceAr || !opened || !canvas) { return; }
 
 	    try {
+
+	    	this._arLoading = true;
 
 	      const ar = await import(
 	        /* webpackChunkName: 'app-camera-system-face-ar' */ 
@@ -176,7 +182,9 @@ export const ArMixin = superClass => {
 	      while (this._ready && this._streaming) {
 
 	        const frame = await this.grabFrame();	        
-	        await this.__arPredict(frame, mirror);
+	        await this.__arPredict(frame, mirror);	        
+
+	      	this._arLoading = false;
 	      }
 	    }
 	    catch (error) {

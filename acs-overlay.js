@@ -61,7 +61,7 @@ import timer from '@longlost/worker/timer.js';
 import {orientation} from 'o9n'; 
 
 import mime       from 'mime-types';
-import services   from '@longlost/services/services.js';
+import services   from '@longlost/app-shell/services/services.js';
 import htmlString from './acs-overlay.html';
 import '@longlost/app-icons/app-icons.js';
 import '@longlost/app-images/flip-image.js';

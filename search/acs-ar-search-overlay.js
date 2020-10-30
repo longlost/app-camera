@@ -1,9 +1,9 @@
 
 
 /**
-  * `acs-options-overlay`
+  * `acs-ar-search-overlay`
   * 
-  *   Easily change camera options such as face stickers, effects and settings.
+  *   Easily search for and change camera options such as face stickers, effects.
   *
   *
   *
@@ -34,7 +34,7 @@
 
 import {AppElement, html} from '@longlost/app-element/app-element.js';
 import {hijackEvent}      from '@longlost/utils/utils.js';
-import htmlString         from './acs-options-overlay.html';
+import htmlString         from './acs-ar-search-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '@longlost/app-spinner/app-spinner.js';
 import '@longlost/tab-pages/tab-pages.js';
@@ -42,8 +42,8 @@ import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
 
 
-class ACSOptionsOverlay extends AppElement {
-  static get is() { return 'acs-options-overlay'; }
+class ACSARSearchOverlay extends AppElement {
+  static get is() { return 'acs-ar-search-overlay'; }
 
   static get template() {
     return html([htmlString]);
@@ -133,4 +133,4 @@ class ACSOptionsOverlay extends AppElement {
 
 }
 
-window.customElements.define(ACSOptionsOverlay.is, ACSOptionsOverlay);
+window.customElements.define(ACSARSearchOverlay.is, ACSARSearchOverlay);

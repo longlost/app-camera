@@ -3,7 +3,7 @@
   * `acs-permission-denied-modal`
   * 
   *   This modal ui explains to the user that they will need 
-  * 	to grant access to the camera in order to use the camera system.
+  *   to grant access to the camera in order to use the camera system.
   *
   *   
   *
@@ -35,12 +35,12 @@
 
 
 import {
-	appCameraPermissionDenied, 
-	privacyPolicyUrl
-} from 'app.config.js';
+  appCameraPermissionDenied, 
+  privacyPolicyUrl
+} from 'config.js';
 
 import {AppElement, html} from '@longlost/app-element/app-element.js';
-import htmlString 				from './acs-permission-denied-modal.html';
+import htmlString         from './acs-permission-denied-modal.html';
 import '@longlost/app-overlays/app-modal.js';
 import '@polymer/paper-button/paper-button.js';
 
@@ -54,21 +54,21 @@ class ACSPermissionDeniedModal extends AppElement {
 
 
   static get properties() {
-  	return {
+    return {
 
-  		_appCameraPermissionDenied: String,
+      _appCameraPermissionDenied: String,
 
-  		_privacyPolicyUrl: String
+      _privacyPolicyUrl: String
 
-  	};
+    };
   }
 
 
   constructor() {
-  	super();
+    super();
 
-  	this._appCameraPermissionDenied = appCameraPermissionDenied;
-  	this._privacyPolicyUrl 					= privacyPolicyUrl;
+    this._appCameraPermissionDenied = appCameraPermissionDenied;
+    this._privacyPolicyUrl          = privacyPolicyUrl;
   }
 
 

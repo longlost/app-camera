@@ -86,16 +86,8 @@ class ACSOverlay extends ArMixin(AppElement) {
   static get properties() {
     return {
 
-      albumName: {
-        type: String,
-        value: 'My Photos'
-      },
-
-      // This MUST be unique to avoid unreachable data.
-      albumType: {
-        type: String,
-        value: 'photos'
-      },
+      // Firebase collection to save and fetch captures.
+      coll: String,
 
       // Set which camera to initialize with.
       //
@@ -106,6 +98,8 @@ class ACSOverlay extends ArMixin(AppElement) {
         value: 'user' // Or 'environment'. 
       },
 
+      faceAr: Boolean,
+
       // Hide the camera capture button.
       noCapture: {
         type: Boolean,
@@ -113,8 +107,6 @@ class ACSOverlay extends ArMixin(AppElement) {
       },
 
       user: Object,
-
-      _albumUid: String,
 
       // The photographic capture Blob.
       _blob: Object,
@@ -125,7 +117,7 @@ class ACSOverlay extends ArMixin(AppElement) {
         computed: '__computeBtnDisabled(_ready)'
       },
 
-      _camera: String, // 'user' or 'environment'. 
+      _camera: String, // 'user' or 'environment'.
 
       // FLIP image input.
       _capture: Object,
@@ -151,6 +143,12 @@ class ACSOverlay extends ArMixin(AppElement) {
       _flash: {
         type: String,
         value: 'auto' // Or 'off', or 'flash'.
+      },
+
+      _hideArBtn: {
+        type: Boolean,
+        value: true,
+        computed: '__computeHideArBtn(faceAr)' // Future proofing for other types of ar (ie handAr).
       },
 
       _hideFlashBtn: {
@@ -215,6 +213,12 @@ class ACSOverlay extends ArMixin(AppElement) {
 
       _src: String,
 
+      // Used along with '_opened' to start the camera, but only
+      // once/if the overlay is opened. 
+      // This ensures that the camera is not accessed when the feed is 
+      // not visible, in order to make intentions clear and keep user trust.
+      _startCam: Boolean,
+
       _streaming: Boolean,
 
       _trackCapabilities: Object,
@@ -237,11 +241,11 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   static get observers() {
     return [
-      '__albumUidChanged(_albumUid)',
+      '__collUserOpenedSrcChanged(coll, user, _opened, _src)',
       '__imgClickedRippledChanged(_imgClicked, _imgRippled)',
       '__openedChanged(_opened)',
-      '__streamingChanged(_streaming)',
-      '__userOpenedSrcChanged(user, _opened, _src)'
+      '__openedStartCamChanged(_opened, _startCam)',
+      '__streamingChanged(_streaming)'
     ];
   }
 
@@ -288,6 +292,11 @@ class ACSOverlay extends ArMixin(AppElement) {
     }
 
     return 'bottom-btn center-horz-btn';
+  }
+
+
+  __computeHideArBtn(faceAr) {
+    return !Boolean(faceAr);
   }
 
 
@@ -367,9 +376,32 @@ class ACSOverlay extends ArMixin(AppElement) {
     return '';
   }
 
+  // Fetch the most recently taken photo to display as a camera roll access ui.
+  async __collUserOpenedSrcChanged(coll, user, opened, src) {
+    try {      
 
-  __albumUidChanged(uid) {
-    this.fire('camera-overlay-album-uid-changed', {value: uid});
+      // Unless user has already taken a capture during 
+      // this session (testing for src to be falsey).
+      if (coll && user && opened && !src) { 
+
+        const [item] = await services.getAll({
+          coll,
+          limit: 1,
+          orderBy: {
+            prop:      'timestamp',
+            direction: 'desc'
+          } 
+        });
+
+        if (item && !src && !this._placeholder) {
+          this._noFade      = false;
+          this._placeholder = item.thumbnail || item.optimized;
+        }
+      }
+    }
+    catch (error) {
+      console.log('Could not fetch latest capture for preview: ', error);
+    }
   }
 
 
@@ -398,75 +430,16 @@ class ACSOverlay extends ArMixin(AppElement) {
   }
 
 
-  __streamingChanged(streaming) {
-    this.fire('camera-overlay-streaming-changed', {value: streaming});
+  __openedStartCamChanged(opened, start) {
+    
+    if (opened && start) { 
+      this.$.cam.start();
+    }    
   }
 
 
-  async __userOpenedSrcChanged(user, opened, src) {
-    try {      
-
-      if (user && opened && !src) {
-
-        const [albumObj] = await services.query({
-          coll: `users/${user.uid}/albums`,
-          limit: 1,
-          query: {
-            comparator: this.albumType,
-            field:      'type',
-            operator:   '=='
-          }
-        });
-
-        // Use the album uid to get the most recent capture
-        // from the 'albums' collection that belongs to this user.
-        if (albumObj) {
-
-          this._albumUid = albumObj.uid;
-
-          const [item] = await services.getAll({
-            coll:  `albums/${this._albumUid}/${this.albumType}`,
-            limit: 1,
-            orderBy: {
-              prop:      'timestamp',
-              direction: 'desc'
-            } 
-          });
-
-          if (item && !src && !this._placeholder) {
-            this._noFade      = false;
-            this._placeholder = item.thumbnail || item.optimized;
-          }     
-        }
-
-        // The user does not yet have an album of this type,
-        // so create one and assign it a uid. 
-        else {
-
-          const ref = await services.add({
-            coll: `users/${user.uid}/albums`, 
-            data: {
-              description: null,
-              name:        this.albumName,
-              thumbnail:   null,
-              timestamp:   Date.now(),
-              type:        this.albumType
-            }
-          });
-
-          this._albumUid = ref.id;
-
-          services.set({
-            coll: `users/${user.uid}/albums`,
-            doc:  this._albumUid,
-            data: {uid: this._albumUid}
-          });
-        }         
-      }
-    }
-    catch (error) {
-      console.log('Could not fetch latest capture for preview: ', error);
-    }
+  __streamingChanged(streaming) {
+    this.fire('camera-overlay-streaming-changed', {value: streaming});
   }
 
 
@@ -601,8 +574,8 @@ class ACSOverlay extends ArMixin(AppElement) {
       this.$.flip.reset();
       window.URL.revokeObjectURL(this._src);
 
-      // Start saving captures to user's album.
-      if (this._albumUid) {
+      // Start saving captures to user's collection.
+      if (this.coll) {
 
         const name    = `capture.${mime.extension(this._blob.type)}`;
         const capture = blobToFile(this._blob, name, this._blob.type);
@@ -770,11 +743,12 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   // Initialize video stream.
   start() {
-    this.$.cam.start();
+    this._startCam = true;
   }
 
   // Halt video stream.
   stop() {
+    this._startCam = false;
     this.$.cam.stop();
   }
 

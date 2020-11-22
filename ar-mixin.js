@@ -50,7 +50,10 @@ export const ArMixin = superClass => {
 	      _arReady: Boolean,
 
 	      // Controls loading ui elements' state.
-      	_arLoading: Boolean
+      	_arLoading: {
+      		type: Boolean,
+      		value: false
+      	}
 
 	    };
 	  }

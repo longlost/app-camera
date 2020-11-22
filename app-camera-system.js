@@ -46,6 +46,7 @@ import {
   warn
 } from '@longlost/utils/utils.js';
 
+import services   from '@longlost/app-shell/services/services.js';
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
 import './search/acs-ar-search-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
@@ -97,6 +98,12 @@ class AppCameraSystem extends AppElement {
 
       _albumUid: String,
 
+      _cameraOpened: Boolean,
+
+      _cameraRollOpened: Boolean,
+
+      _filePickerOpened: Boolean,
+
       _stamp: {
         type: Boolean,
         value: false
@@ -106,15 +113,74 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  __computeAlbum(type, uid) {
-    return `albums/${uid}/${type}`;
+  static get observers() {
+    return [
+      '__userOpenedChanged(user, _cameraOpened, _cameraRollOpened, _filePickerOpened)'
+    ];
   }
 
 
-  __albumUidChangedHandler(event) {
-    hijackEvent(event);
+  __computeAlbum(type, uid) {
+    if (!type || !uid) { return; }
 
-    this._albumUid = event.detail.value;
+    return `albums/${uid}/${type}`;
+  }
+
+  // Fetch/create the user's photo album.
+  async __userOpenedChanged(user, cameraOpened, cameraRollOpened, filePickerOpened) {
+    try {
+
+      if (!user) { return; }      
+
+      if (cameraOpened || cameraRollOpened || filePickerOpened) {
+
+        const coll = `users/${user.uid}/albums`;
+
+        const [albumObj] = await services.query({
+          coll,
+          limit: 1,
+          query: {
+            comparator: this.albumType,
+            field:      'type',
+            operator:   '=='
+          }
+        });
+
+        // Use the album uid to access its photos.
+        if (albumObj) {
+          this._albumUid = albumObj.uid;
+        }
+
+        // The user does not yet have an album of this type,
+        // so create one and assign it a uid. 
+        else {
+
+          const ref = await services.add({
+            coll, 
+            data: {
+              description: null,
+              name:        this.albumName,
+              thumbnail:   null,
+              timestamp:   Date.now(),
+              type:        this.albumType
+            }
+          });
+
+          const uid = ref.id;
+
+          await services.set({
+            coll,
+            doc:   uid,
+            data: {uid}
+          });
+
+          this._albumUid = uid;
+        }         
+      }
+    }
+    catch (error) {
+      console.error(`Could not setup the user's photo album: ${error}`);
+    }
   }
 
 
@@ -132,6 +198,8 @@ class AppCameraSystem extends AppElement {
       await this.$.fs.openList();
 
       this.select('#camera').stop();
+
+      this._cameraRollOpened = true;
     }
     catch (error) {
       console.error(error);
@@ -211,6 +279,8 @@ class AppCameraSystem extends AppElement {
       await this.$.fs.open();
 
       this.select('#camera').stop();
+
+      this._filePickerOpened = true;
     }
     catch (error) {
       console.error(error);
@@ -227,25 +297,36 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  async open() {
+  async __stampTemplate() {
+    if (this._stamp) { return; }
 
     this._stamp = true;
 
     await listenOnce(this.$.stamper, 'dom-change');
     await schedule();
+  }
 
-    return this.select('#camera').open();
+
+  async open() {
+
+    await this.__stampTemplate();
+
+    await this.select('#camera').open();
+
+    this._cameraOpened = true;
   }
 
   // Show a modal which allows the user to choose 
-  // whether to use the `acs-overlay` or
-  // `afs-file-sources` ui to add photos.
+  // whether to use the camera (`acs-overlay`) or
+  // camera roll (`afs-file-sources`) ui to add photos.
   async openChooser() {
 
     await import(
       /* webpackChunkName: 'acs-source-chooser-modal' */ 
       './modals/acs-source-chooser-modal.js'
     );
+
+    await this.__stampTemplate();
 
     return this.select('#chooser').open();
   }

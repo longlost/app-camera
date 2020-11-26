@@ -1,0 +1,86 @@
+
+<style include="app-shared-styles">
+
+  :host {
+    display: inline-flex;
+    flex:    1;
+    margin:  4px;
+
+    --picker-button-background-color: var(--app-background-color);
+    --picker-button-color:            var(--app-dark-text-color);
+  }
+	
+	#button {
+    display:  flex;
+		position: relative;
+    width:    100%;
+    background-color: var(--picker-button-background-color);
+    color:            var(--picker-button-color);
+	}
+
+  /* Keyboard-only focus styles hack. */
+  #button:focus,
+  #content:focus {
+    outline: none;
+  }
+
+  /* Keyboard-only focus styles hack. */
+  #button:focus > #content {
+    outline-offset: -2px;
+    outline:         var(--dark-text-color) solid 2px; 
+  }
+
+  #content {
+  	display: 				 flex;
+  	flex-direction:  column;
+  	justify-content: space-between;
+  	align-items: 		 center;
+    width:           100%;
+    padding:         16px 8px;
+  }
+
+  #content * {
+    outline: none;
+  }
+
+  iron-icon {
+    height: 40px;
+    width:  40px;
+  }
+
+  p {
+    font-size:  18px;
+    text-align: center;
+    margin:     8px 0px 0px 0px;
+  }
+
+</style>
+
+
+<iron-a11y-keys id="a11y"
+                keys="enter"
+                on-keys-pressed="__a11yKeysPressed">
+</iron-a11y-keys>
+
+
+<div id="button"
+		 class="shared-card"
+		 tabindex="0" 
+		 on-click="__btnClicked">
+
+	<div id="content" 
+			 tabindex="-1">	
+		<iron-icon icon="[[icon]]" 
+							 tabindex="-1">
+		</iron-icon>
+		<p class="shared-no-select" 
+			 tabindex="-1">
+			[[text]]
+		</p>
+	</div>
+
+	<paper-ripple tabindex="-1" 
+								on-transitionend="__rippleDoneHandler">
+	</paper-ripple>
+
+</div>

@@ -1,0 +1,95 @@
+
+<style>
+
+  #content {
+  	display: 		 flex;
+  	align-items: flex-end;
+  	min-height:  calc(100vh - 64px);
+  }
+
+  #btns {
+  	display: 							 grid;
+  	grid-template-columns: repeat(auto-fit, minmax(264px, 1fr));
+  	width: 								 calc(100% - 8px);
+  	max-width: 						 736px;
+  	margin: 							 0px auto 4px auto;
+  }
+
+  .btn-pair {
+  	display: flex;
+  	width: 	 100%;
+  }
+
+  acs-picker-button[type="camera"] {
+  	--picker-button-background-color: var(--app-secondary-color);
+  	--picker-button-color: 						var(--app-secondary-color-text);
+  }
+
+  acs-picker-button[type="picker"] {
+  	--picker-button-background-color: var(--app-secondary-light-color);
+  	--picker-button-color: 						var(--app-secondary-light-color-text);
+  }
+
+  acs-picker-button[type="sources"] {
+  	--picker-button-background-color: var(--app-primary-color);
+  	--picker-button-color: 						var(--app-primary-color-text);
+  }
+
+  acs-picker-button[type="roll"] {
+  	--picker-button-background-color: var(--app-primary-light-color);
+  	--picker-button-color: 						var(--app-primary-light-color-text);
+  }
+
+</style>
+
+
+<app-header-overlay id="overlay"
+             				prebuilt-animation="from-right"
+             				header-size="1"
+             				reveal-header
+             				title="[[title]]"
+             				on-overlay-reset="__resetHandler">
+
+
+  <div id="content" 
+  		 slot="content">
+
+  	<div>
+  		<slot></slot>
+  	</div>
+
+
+  	<div id="btns">
+
+  		<div class="btn-pair">  		
+	  		<acs-picker-button icon="app-camera-icons:add-a-photo" 
+	  											 text="Use Camera" 
+	  											 type="camera" 
+	  											 on-clicked-rippled="__btnClickedRippledHandler">
+	  		</acs-picker-button>
+	  		<acs-picker-button icon="app-camera-icons:camera-roll" 
+	  											 text="Pick Photos" 
+	  											 type="picker" 
+	  											 on-clicked-rippled="__btnClickedRippledHandler">
+	  		</acs-picker-button>
+	  	</div>
+
+	  	<div class="btn-pair">
+	  		<acs-picker-button icon="app-camera-icons:folder-open" 
+	  											 text="Add Image File" 
+	  											 type="sources" 
+	  											 on-clicked-rippled="__btnClickedRippledHandler">
+	  		</acs-picker-button>
+	  		<acs-picker-button icon="app-camera-icons:photo-album" 
+	  											 text="Manage Photos" 
+	  											 type="roll" 
+	  											 on-clicked-rippled="__btnClickedRippledHandler">
+	  		</acs-picker-button>
+	  	</div>
+
+  	</div>
+
+  </div>
+
+
+</app-header-overlay>

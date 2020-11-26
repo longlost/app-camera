@@ -39,7 +39,7 @@ import {
   html
 } from '@longlost/app-element/app-element.js';
 
-import {ArMixin} from './ar-mixin.js';
+import {ArMixin} from './ar/ar-mixin.js';
 
 import {blobToFile} from '@longlost/lambda/lambda.js';
 

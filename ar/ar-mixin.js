@@ -109,7 +109,7 @@ export const ArMixin = superClass => {
 
 	      const ar = await import(
 	        /* webpackChunkName: 'app-camera-system-face-ar' */ 
-	        './ar/face-ar.js'
+	        './face-ar.js'
 	      );
 
 	      const offscreencanvas = canvas.transferControlToOffscreen(); 

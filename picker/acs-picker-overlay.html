@@ -2,94 +2,112 @@
 <style>
 
   #content {
-  	display: 		 flex;
-  	align-items: flex-end;
-  	min-height:  calc(100vh - 64px);
+    display:         flex;
+    flex-direction:  column;
+    justify-content: space-between;
+    align-items:     center;
+    min-height:      calc(100vh - 64px);
+  }
+
+  #slot-container {
+    display:        flex;
+    flex-direction: column;
+    flex:           1;
+  }
+
+  #slot::slotted(*) {
+    flex: 1;
   }
 
   #btns {
-  	display: 							 grid;
-  	grid-template-columns: repeat(auto-fit, minmax(264px, 1fr));
-  	width: 								 calc(100% - 8px);
-  	max-width: 						 736px;
-  	margin: 							 0px auto 4px auto;
+    display:               grid;
+    grid-template-columns: repeat(auto-fit, minmax(264px, 1fr));
+    width:                 calc(100% - 8px);
+    max-width:             736px;
+    margin:                0px auto 4px auto;
   }
 
   .btn-pair {
-  	display: flex;
-  	width: 	 100%;
+    display: flex;
+    width:   100%;
   }
 
   acs-picker-button[type="camera"] {
-  	--picker-button-background-color: var(--app-secondary-color);
-  	--picker-button-color: 						var(--app-secondary-color-text);
+    --picker-button-background-color: var(--app-secondary-color);
+    --picker-button-color:            var(--app-secondary-color-text);
   }
 
   acs-picker-button[type="picker"] {
-  	--picker-button-background-color: var(--app-secondary-light-color);
-  	--picker-button-color: 						var(--app-secondary-light-color-text);
+    --picker-button-background-color: var(--app-secondary-light-color);
+    --picker-button-color:            var(--app-secondary-light-color-text);
   }
 
   acs-picker-button[type="sources"] {
-  	--picker-button-background-color: var(--app-primary-color);
-  	--picker-button-color: 						var(--app-primary-color-text);
+    --picker-button-background-color: var(--app-primary-color);
+    --picker-button-color:            var(--app-primary-color-text);
   }
 
   acs-picker-button[type="roll"] {
-  	--picker-button-background-color: var(--app-primary-light-color);
-  	--picker-button-color: 						var(--app-primary-light-color-text);
+    --picker-button-background-color: var(--app-primary-light-color);
+    --picker-button-color:            var(--app-primary-light-color-text);
   }
 
 </style>
 
 
 <app-header-overlay id="overlay"
-             				prebuilt-animation="from-right"
-             				header-size="1"
-             				reveal-header
-             				title="[[title]]"
-             				on-overlay-reset="__resetHandler">
+                    prebuilt-animation="from-right"
+                    header-size="1"
+                    reveal-header
+                    title="[[title]]"
+                    on-overlay-reset="__resetHandler">
 
 
   <div id="content" 
-  		 slot="content">
+       slot="content">
 
-  	<div>
-  		<slot></slot>
-  	</div>
+    <div id="slot-container">
+      <slot id="slot"></slot>
+    </div>
 
 
-  	<div id="btns">
+    <div id="btns">
 
-  		<div class="btn-pair">  		
-	  		<acs-picker-button icon="app-camera-icons:add-a-photo" 
-	  											 text="Use Camera" 
-	  											 type="camera" 
-	  											 on-clicked-rippled="__btnClickedRippledHandler">
-	  		</acs-picker-button>
-	  		<acs-picker-button icon="app-camera-icons:camera-roll" 
-	  											 text="Pick Photos" 
-	  											 type="picker" 
-	  											 on-clicked-rippled="__btnClickedRippledHandler">
-	  		</acs-picker-button>
-	  	</div>
+      <div class="btn-pair">      
+        <acs-picker-button icon="app-camera-icons:add-a-photo" 
+                           text="Use Camera" 
+                           type="camera" 
+                           on-clicked-rippled="__btnClickedRippledHandler">
+        </acs-picker-button>
+        <acs-picker-button icon="app-camera-icons:camera-roll" 
+                           text="Pick Photo" 
+                           type="picker" 
+                           on-clicked-rippled="__btnClickedRippledHandler">
+        </acs-picker-button>
+      </div>
 
-	  	<div class="btn-pair">
-	  		<acs-picker-button icon="app-camera-icons:folder-open" 
-	  											 text="Add Image File" 
-	  											 type="sources" 
-	  											 on-clicked-rippled="__btnClickedRippledHandler">
-	  		</acs-picker-button>
-	  		<acs-picker-button icon="app-camera-icons:photo-album" 
-	  											 text="Manage Photos" 
-	  											 type="roll" 
-	  											 on-clicked-rippled="__btnClickedRippledHandler">
-	  		</acs-picker-button>
-	  	</div>
+      <div class="btn-pair">
+        <acs-picker-button icon="app-camera-icons:add-to-photos" 
+                           text="Add Image File" 
+                           type="sources" 
+                           on-clicked-rippled="__btnClickedRippledHandler">
+        </acs-picker-button>
+        <acs-picker-button icon="app-camera-icons:photo-album" 
+                           text="Manage Photos" 
+                           type="roll" 
+                           on-clicked-rippled="__btnClickedRippledHandler">
+        </acs-picker-button>
+      </div>
 
-  	</div>
+    </div>
 
   </div>
 
 
 </app-header-overlay>
+
+
+<app-camera-system id="camera"
+                   dark-mode="[[darkMode]]"
+                   user="[[user]]">                     
+</app-camera-system>

@@ -37,8 +37,8 @@
 
 
 import {AppElement, html} from '@longlost/app-element/app-element.js';
-import {hijackEvent} 			from '@longlost/utils/utils.js';
-import htmlString 	 			from './acs-picker-overlay.html';
+import {hijackEvent}      from '@longlost/utils/utils.js';
+import htmlString         from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '../app-camera-icons.js';
 import './acs-picker-button.js';
@@ -55,10 +55,14 @@ class ACSPickerOverlay extends AppElement {
   static get properties() {
     return {
 
+      darkMode: Boolean,
+
       title: {
         type: String,
         value: 'Change this Photo'
       },
+
+      user: Object,
 
       _opened: Boolean
 
@@ -66,15 +70,29 @@ class ACSPickerOverlay extends AppElement {
   }
 
 
-  __resetHandler() {
+  static get observers() {
+    return [
+      '__openedChanged(_opened)'
+    ];
+  }
+
+
+  __openedChanged(opened) {
+    this.fire('acs-picker-overlay-opened-changed', {value: opened});
+  }
+
+
+  __resetHandler(event) {
+    hijackEvent(event);
+
     this._opened = false;
   }
 
 
   __btnClickedRippledHandler(event) {
-  	hijackEvent(event);
+    hijackEvent(event);
 
-  	console.log('btn clicked rippled: ', event.detail);
+    console.log('btn clicked rippled: ', event.detail);
 
   }
 

@@ -79,7 +79,8 @@
                            type="camera" 
                            on-clicked-rippled="__btnClickedRippledHandler">
         </acs-picker-button>
-        <acs-picker-button icon="app-camera-icons:camera-roll" 
+        <acs-picker-button disabled="[[!user]]"
+                           icon="app-camera-icons:camera-roll" 
                            text="Pick Photo" 
                            type="picker" 
                            on-clicked-rippled="__btnClickedRippledHandler">
@@ -87,12 +88,14 @@
       </div>
 
       <div class="btn-pair">
-        <acs-picker-button icon="app-camera-icons:add-to-photos" 
+        <acs-picker-button disabled="[[!user]]"
+                           icon="app-camera-icons:add-to-photos" 
                            text="Add Image File" 
                            type="sources" 
                            on-clicked-rippled="__btnClickedRippledHandler">
         </acs-picker-button>
-        <acs-picker-button icon="app-camera-icons:photo-album" 
+        <acs-picker-button disabled="[[!user]]"
+                           icon="app-camera-icons:photo-album" 
                            text="Manage Photos" 
                            type="roll" 
                            on-clicked-rippled="__btnClickedRippledHandler">
@@ -107,7 +110,11 @@
 </app-header-overlay>
 
 
-<app-camera-system id="camera"
+<app-camera-system id="cameraSystem"
+                   album-name="[[albumName]]"
+                   album-type="[[albumType]]"
                    dark-mode="[[darkMode]]"
+                   default-camera="[[defaultCamera]]"
+                   face-ar="[[faceAr]]"
                    user="[[user]]">                     
 </app-camera-system>

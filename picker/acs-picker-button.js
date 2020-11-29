@@ -35,8 +35,8 @@
 
 
 import {AppElement, html} from '@longlost/app-element/app-element.js';
-import {consumeEvent} 		from '@longlost/utils/utils.js';
-import htmlString     		from './acs-picker-button.html';
+import {consumeEvent}     from '@longlost/utils/utils.js';
+import htmlString         from './acs-picker-button.html';
 import '@longlost/app-shared-styles/app-shared-styles.js';
 import '@polymer/iron-a11y-keys/iron-a11y-keys.js';
 import '@polymer/iron-icon/iron-icon.js';
@@ -54,15 +54,26 @@ class ACSPickerButton extends AppElement {
   static get properties() {
     return {
 
-    	icon: String,
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
 
-    	text: String,
+      icon: String,
 
-    	type: String,
+      text: String,
+
+      type: String,
 
       _clicked: Boolean,
 
-      _rippled: Boolean
+      _rippled: Boolean,
+
+      _tabindex: {
+        type: String,
+        value: '0',
+        computed: '__computeTabindex(disabled)'
+      }
 
     };
   }
@@ -82,9 +93,14 @@ class ACSPickerButton extends AppElement {
   }
 
 
+  __computeTabindex(disabled) {
+    return disabled ? '-1' : '0';
+  }
+
+
   __a11yKeysPressed(event) {
-  	consumeEvent(event);
-  	
+    consumeEvent(event);
+    
     const {key} = event.detail.keyboardEvent;
 
     if (key === 'Enter') {
@@ -113,6 +129,9 @@ class ACSPickerButton extends AppElement {
 
   async __btnClicked() {
     try {
+
+      if (this.disabled) { return; }
+
       await this.clicked();
 
       this._clicked = true;

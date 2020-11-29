@@ -98,11 +98,7 @@ class AppCameraSystem extends AppElement {
 
       _albumUid: String,
 
-      _cameraOpened: Boolean,
-
-      _cameraRollOpened: Boolean,
-
-      _filePickerOpened: Boolean,
+      _opened: Boolean,
 
       _stamp: {
         type: Boolean,
@@ -115,7 +111,7 @@ class AppCameraSystem extends AppElement {
 
   static get observers() {
     return [
-      '__userOpenedChanged(user, _cameraOpened, _cameraRollOpened, _filePickerOpened)'
+      '__userOpenedChanged(user, _opened)'
     ];
   }
 
@@ -127,56 +123,53 @@ class AppCameraSystem extends AppElement {
   }
 
   // Fetch/create the user's photo album.
-  async __userOpenedChanged(user, cameraOpened, cameraRollOpened, filePickerOpened) {
+  async __userOpenedChanged(user, opened) {
     try {
 
-      if (!user) { return; }      
+      if (!user || !opened) { return; }
 
-      if (cameraOpened || cameraRollOpened || filePickerOpened) {
+      const coll = `users/${user.uid}/albums`;
 
-        const coll = `users/${user.uid}/albums`;
+      const [albumObj] = await services.query({
+        coll,
+        limit: 1,
+        query: {
+          comparator: this.albumType,
+          field:      'type',
+          operator:   '=='
+        }
+      });
 
-        const [albumObj] = await services.query({
-          coll,
-          limit: 1,
-          query: {
-            comparator: this.albumType,
-            field:      'type',
-            operator:   '=='
+      // Use the album uid to access its photos.
+      if (albumObj) {
+        this._albumUid = albumObj.uid;
+      }
+
+      // The user does not yet have an album of this type,
+      // so create one and assign it a uid. 
+      else {
+
+        const ref = await services.add({
+          coll, 
+          data: {
+            description: null,
+            name:        this.albumName,
+            thumbnail:   null,
+            timestamp:   Date.now(),
+            type:        this.albumType
           }
         });
 
-        // Use the album uid to access its photos.
-        if (albumObj) {
-          this._albumUid = albumObj.uid;
-        }
+        const uid = ref.id;
 
-        // The user does not yet have an album of this type,
-        // so create one and assign it a uid. 
-        else {
+        await services.set({
+          coll,
+          doc:   uid,
+          data: {uid}
+        });
 
-          const ref = await services.add({
-            coll, 
-            data: {
-              description: null,
-              name:        this.albumName,
-              thumbnail:   null,
-              timestamp:   Date.now(),
-              type:        this.albumType
-            }
-          });
-
-          const uid = ref.id;
-
-          await services.set({
-            coll,
-            doc:   uid,
-            data: {uid}
-          });
-
-          this._albumUid = uid;
-        }         
-      }
+        this._albumUid = uid;
+      } 
     }
     catch (error) {
       console.error(`Could not setup the user's photo album: ${error}`);
@@ -184,28 +177,10 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  async __openCameraRollHandler(event) {
-    try {
-      hijackEvent(event);
+  __openCameraRollHandler(event) {
+    hijackEvent(event);
 
-      if (!this.user) { return; } // Must be signed in to save photos.
-
-      await import(
-        /* webpackChunkName: 'app-file-system' */ 
-        '@longlost/app-file-system/app-file-system.js'
-      );
-
-      await this.$.fs.openList();
-
-      this.select('#camera').stop();
-
-      this._cameraRollOpened = true;
-    }
-    catch (error) {
-      console.error(error);
-
-      warn('Sorry! Could not open your photos.');
-    }
+    this.openCameraRoll();
   }
 
 
@@ -265,28 +240,10 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  async __openSourcesHandler(event) {
-    try {
-      hijackEvent(event);
+  __openSourcesHandler(event) {
+    hijackEvent(event);
 
-      if (!this.user) { return; } // Must be signed in to save photos.
-
-      await import(
-        /* webpackChunkName: 'app-file-system' */ 
-        '@longlost/app-file-system/app-file-system.js'
-      );
-
-      await this.$.fs.open();
-
-      this.select('#camera').stop();
-
-      this._filePickerOpened = true;
-    }
-    catch (error) {
-      console.error(error);
-
-      warn('Sorry! Could not open the file browser.');
-    }
+    this.openSources();
   }
 
 
@@ -307,19 +264,44 @@ class AppCameraSystem extends AppElement {
   }
 
 
-  async open() {
+  async openCamera() {
 
     await this.__stampTemplate();
 
     await this.select('#camera').open();
 
-    this._cameraOpened = true;
+    this._opened = true;
+  }
+
+
+  async openCameraRoll() {
+    try {
+
+      // Must be signed in to save photos.
+      if (!this.user) { throw new Error('User MUST be signed in to use the camera roll!'); }
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.openList();
+
+      this.select('#camera').stop();
+
+      this._opened = true;
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Sorry! Could not open your photos.');
+    }
   }
 
   // Show a modal which allows the user to choose 
   // whether to use the camera (`acs-overlay`) or
   // camera roll (`afs-file-sources`) ui to add photos.
-  async openChooser() {
+  async openChooserModal() {
 
     await import(
       /* webpackChunkName: 'acs-source-chooser-modal' */ 
@@ -329,6 +311,56 @@ class AppCameraSystem extends AppElement {
     await this.__stampTemplate();
 
     return this.select('#chooser').open();
+  }
+
+
+  async openSelector() {
+    try {
+
+      // Must be signed in to save photos.
+      if (!this.user) { throw new Error('User MUST be signed in to select photos!'); }
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.openSelector();
+
+      this.select('#camera').stop();
+
+      this._opened = true;
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Sorry! Could not open the photo picker.');
+    }
+  }
+
+
+  async openSources() {
+    try {
+
+      // Must be signed in to save photos.
+      if (!this.user) { throw new Error('User MUST be signed in to save photos!'); }
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.openSources();
+
+      this.select('#camera').stop();
+
+      this._opened = true;
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Sorry! Could not open the file browser.');
+    }
   }
 
 }

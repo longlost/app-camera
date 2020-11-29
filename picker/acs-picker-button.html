@@ -9,14 +9,20 @@
     --picker-button-background-color: var(--app-background-color);
     --picker-button-color:            var(--app-dark-text-color);
   }
-	
-	#button {
+
+  :host([disabled]) #button {
+    box-shadow:       none;
+    background-color: var(--app-disabled-color);
+    color:            var(--disabled-text-color);
+  }
+  
+  #button {
     display:  flex;
-		position: relative;
+    position: relative;
     width:    100%;
     background-color: var(--picker-button-background-color);
     color:            var(--picker-button-color);
-	}
+  }
 
   /* Keyboard-only focus styles hack. */
   #button:focus,
@@ -31,10 +37,10 @@
   }
 
   #content {
-  	display: 				 flex;
-  	flex-direction:  column;
-  	justify-content: space-between;
-  	align-items: 		 center;
+    display:         flex;
+    flex-direction:  column;
+    justify-content: space-between;
+    align-items:     center;
     width:           100%;
     padding:         16px 8px;
   }
@@ -64,23 +70,24 @@
 
 
 <div id="button"
-		 class="shared-card"
-		 tabindex="0" 
-		 on-click="__btnClicked">
+     class="shared-card"
+     tabindex$="[[_tabindex]]" 
+     on-click="__btnClicked">
 
-	<div id="content" 
-			 tabindex="-1">	
-		<iron-icon icon="[[icon]]" 
-							 tabindex="-1">
-		</iron-icon>
-		<p class="shared-no-select" 
-			 tabindex="-1">
-			[[text]]
-		</p>
-	</div>
+  <div id="content" 
+       tabindex="-1"> 
+    <iron-icon icon="[[icon]]" 
+               tabindex="-1">
+    </iron-icon>
+    <p class="shared-no-select" 
+       tabindex="-1">
+      [[text]]
+    </p>
+  </div>
 
-	<paper-ripple tabindex="-1" 
-								on-transitionend="__rippleDoneHandler">
-	</paper-ripple>
+  <paper-ripple noink="[[disabled]]"
+                tabindex="-1" 
+                on-transitionend="__rippleDoneHandler">
+  </paper-ripple>
 
 </div>

@@ -40,6 +40,7 @@ import {AppElement, html}  from '@longlost/app-element/app-element.js';
 import {hijackEvent, warn} from '@longlost/utils/utils.js';
 import htmlString          from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
+import '@longlost/app-spinner/app-spinner.js';
 import '../app-camera-icons.js';
 import './acs-picker-button.js';
 // `app-camera-system` lazy imported.
@@ -103,6 +104,7 @@ class ACSPickerOverlay extends AppElement {
   static get observers() {
     return [
       '__openedChanged(_opened)',
+      '__openedSelectedChanged(_opened, _selected)',
       '__selectedChanged(_selected)'
     ];
   }
@@ -110,6 +112,11 @@ class ACSPickerOverlay extends AppElement {
 
   __openedChanged(opened) {
     this.fire('acs-picker-overlay-opened-changed', {value: opened});
+  }
+
+
+  __openedSelectedChanged() {
+    this.$.spinner.hide();
   }
 
 
@@ -160,6 +167,15 @@ class ACSPickerOverlay extends AppElement {
 
       warn('Could not open the camera system.');
     }
+  }
+
+
+  __filesAddedHandler(event) {
+    hijackEvent(event);
+
+    if (!this._opened) { return; }
+
+    this.$.spinner.show('Processing photo.');
   }
 
 

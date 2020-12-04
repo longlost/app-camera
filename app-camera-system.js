@@ -250,6 +250,13 @@ class AppCameraSystem extends AppElement {
   }
 
   // Rename then forward event from `app-file-system`.
+  __filesAddedHandler(event) {
+    hijackEvent(event);
+
+    this.fire('app-camera-system-files-added', event.detail);
+  }
+
+  // Rename then forward event from `app-file-system`.
   __itemsSavedHandler(event) {
     hijackEvent(event);
 

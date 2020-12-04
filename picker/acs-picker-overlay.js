@@ -91,7 +91,10 @@ class ACSPickerOverlay extends AppElement {
         value: null // Needed for initial button disabled state.
       },
 
-      _opened: Boolean
+      _opened: Boolean,
+
+      // The most recently selected file item object.
+      _selected: Object
 
     };
   }
@@ -99,13 +102,19 @@ class ACSPickerOverlay extends AppElement {
 
   static get observers() {
     return [
-      '__openedChanged(_opened)'
+      '__openedChanged(_opened)',
+      '__selectedChanged(_selected)'
     ];
   }
 
 
   __openedChanged(opened) {
     this.fire('acs-picker-overlay-opened-changed', {value: opened});
+  }
+
+
+  __selectedChanged(selected) {
+    this.fire('acs-picker-overlay-selected-changed', {value: selected});
   }
 
 
@@ -151,6 +160,27 @@ class ACSPickerOverlay extends AppElement {
 
       warn('Could not open the camera system.');
     }
+  }
+
+
+  __itemSelectedHandler(event) {
+    hijackEvent(event);
+
+    this._selected = event.detail.item;
+  }
+
+
+  __itemsSavedHandler(event) {
+    hijackEvent(event);
+
+    if (!this._opened) { return; }
+
+    const {items} = event.detail;
+
+    // The last added item is first.
+    const descendingByIndex = items.sort((a, b) => b.index - a.index);
+
+    this._selected = descendingByIndex[0];
   }
 
 

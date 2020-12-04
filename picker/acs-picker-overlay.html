@@ -110,6 +110,11 @@
 </app-header-overlay>
 
 
+<app-spinner id="spinner" 
+             full-screen>
+</app-spinner>
+
+
 <app-camera-system id="cameraSystem"
                    album-name="[[albumName]]"
                    album-type="[[albumType]]"
@@ -117,6 +122,7 @@
                    default-camera="[[defaultCamera]]"
                    face-ar="[[faceAr]]"
                    user="[[user]]"
+                   on-app-camera-system-files-added="__filesAddedHandler"
                    on-app-camera-system-item-selected="__itemSelectedHandler"
                    on-app-camera-system-items-saved="__itemsSavedHandler">                     
 </app-camera-system>

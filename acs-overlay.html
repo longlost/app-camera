@@ -216,28 +216,6 @@
     <div id="ui"
          on-transitionend="__uiTransitionendHandler">
 
-      <div id="preview-img-wrapper"
-           class$="[[_previewClass]]">
-        <div id="preview-container">
-          <lazy-image id="img"
-                      alt="Last camera capture."
-                      no-fade="[[_noFade]]"
-                      placeholder="[[_placeholder]]"
-                      src="[[_src]]"
-                      on-click="__imgClickHandler"
-                      on-lazy-image-loaded-changed="__srcLoadedHandler">
-          </lazy-image>
-
-          <paper-ripple on-transitionend="__rippleDoneHandler"></paper-ripple>
-        </div>
-      </div>
-
-      <flip-image id="flip"
-                  measurements="[[_measurements]]"
-                  src="[[_capture]]">
-      </flip-image>
-
-
       <div id="top-btns-wrapper">      
 
         <div id="back-btn-wrapper"
@@ -286,7 +264,8 @@
           </paper-icon-button>
         </div>
 
-        <div id="ar-btn" 
+        <div id="ar-btn"
+             hidden="[[_hideArBtn]]"
              class="shared-card-shadow btn-wrapper">
           <paper-icon-button icon="app-camera-icons:photo-filter"
                              on-click="__arBtnClicked">
@@ -295,6 +274,28 @@
       </div>
 
     </div>
+
+
+    <div id="preview-img-wrapper"
+         class$="[[_previewClass]]">
+      <div id="preview-container">
+        <lazy-image id="img"
+                    alt="Last camera capture."
+                    no-fade="[[_noFade]]"
+                    placeholder="[[_placeholder]]"
+                    src="[[_src]]"
+                    on-click="__imgClickHandler"
+                    on-lazy-image-loaded-changed="__srcLoadedHandler">
+        </lazy-image>
+
+        <paper-ripple on-transitionend="__rippleDoneHandler"></paper-ripple>
+      </div>
+    </div>
+
+    <flip-image id="flip"
+                measurements="[[_measurements]]"
+                src="[[_capture]]">
+    </flip-image>
       
 
     <div class$="shared-card-shadow btn-wrapper content-btn-wrapper capture-wrapper [[_captureBtnClass]]"

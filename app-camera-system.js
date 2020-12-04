@@ -43,6 +43,7 @@ import {
   hijackEvent,
   listenOnce,
   schedule,
+  wait,
   warn
 } from '@longlost/utils/utils.js';
 
@@ -99,6 +100,8 @@ class AppCameraSystem extends AppElement {
       _albumUid: String,
 
       _opened: Boolean,
+
+      _selectorOpened: Boolean,
 
       _stamp: {
         type: Boolean,
@@ -246,11 +249,26 @@ class AppCameraSystem extends AppElement {
     this.openSources();
   }
 
-
-  __listClosedHander(event) {
+  // Rename then forward event from `app-file-system`.
+  __itemsSavedHandler(event) {
     hijackEvent(event);
 
-    this.select('#camera').start();
+    this.fire('app-camera-system-items-saved', event.detail);
+  }
+
+
+  __listClosedHandler(event) {
+    hijackEvent(event);
+
+    this.select('#camera')?.start();
+
+    if (this._selectorOpened) {
+
+      // Will have a 'detail' payload when the selector was used
+      this.fire('app-camera-system-item-selected', event.detail);
+    }
+
+    this._selectorOpened = false;
   }
 
 
@@ -287,7 +305,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openList();
 
-      this.select('#camera').stop();
+      this.select('#camera')?.stop();
 
       this._opened = true;
     }
@@ -327,9 +345,10 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openSelector();
 
-      this.select('#camera').stop();
+      this.select('#camera')?.stop();
 
-      this._opened = true;
+      this._opened         = true;
+      this._selectorOpened = true;
     }
     catch (error) {
       console.error(error);
@@ -352,7 +371,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openSources();
 
-      this.select('#camera').stop();
+      this.select('#camera')?.stop();
 
       this._opened = true;
     }

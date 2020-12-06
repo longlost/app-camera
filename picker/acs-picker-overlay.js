@@ -40,7 +40,6 @@ import {AppElement, html}  from '@longlost/app-element/app-element.js';
 import {hijackEvent, warn} from '@longlost/utils/utils.js';
 import htmlString          from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
-import '@longlost/app-spinner/app-spinner.js';
 import '../app-camera-icons.js';
 import './acs-picker-button.js';
 // `app-camera-system` lazy imported.
@@ -94,6 +93,8 @@ class ACSPickerOverlay extends AppElement {
 
       _opened: Boolean,
 
+      _processing: Boolean,
+
       // The most recently selected file item object.
       _selected: Object
 
@@ -105,6 +106,7 @@ class ACSPickerOverlay extends AppElement {
     return [
       '__openedChanged(_opened)',
       '__openedSelectedChanged(_opened, _selected)',
+      '__processingChanged(_processing)',
       '__selectedChanged(_selected)'
     ];
   }
@@ -116,7 +118,12 @@ class ACSPickerOverlay extends AppElement {
 
 
   __openedSelectedChanged() {
-    this.$.spinner.hide();
+    this._processing = false;
+  }
+
+
+  __processingChanged(processing) {
+    this.fire('acs-picker-overlay-processing-changed', {value: processing});
   }
 
 
@@ -175,7 +182,7 @@ class ACSPickerOverlay extends AppElement {
 
     if (!this._opened) { return; }
 
-    this.$.spinner.show('Processing photo.');
+    this._processing = true;
   }
 
 

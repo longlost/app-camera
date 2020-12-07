@@ -37,7 +37,7 @@
 import {
   AppElement, 
   html
-} from '@longlost/app-element/app-element.js';
+} from '@longlost/app-core/app-element.js';
 
 import {
   hijackEvent,
@@ -45,13 +45,14 @@ import {
   schedule,
   wait,
   warn
-} from '@longlost/utils/utils.js';
+} from '@longlost/app-core/utils.js';
 
-import services   from '@longlost/app-shell/services/services.js';
+import services   from '@longlost/app-core/services/services.js';
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
 import './search/acs-ar-search-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
 import './settings/acs-settings-overlay.js';
+// 'app-file-system' lazy loaded.
 
 
 class AppCameraSystem extends AppElement {

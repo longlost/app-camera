@@ -37,20 +37,18 @@
 import {
   AppElement, 
   html
-} from '@longlost/app-element/app-element.js';
+} from '@longlost/app-core/app-element.js';
 
-import {ArMixin} from './ar/ar-mixin.js';
-
-import {blobToFile} from '@longlost/lambda/lambda.js';
+import {blobToFile} from '@longlost/app-core/lambda.js';
 
 import {
   consumeEvent, 
   getBBox,
   getRootTarget, 
   schedule
-} from '@longlost/utils/utils.js';
+} from '@longlost/app-core/utils.js';
 
-import timer from '@longlost/worker/timer.js';
+import timer from '@longlost/app-core/worker/timer.js';
 
 // `o9n` is a screen orientation ponyfill.
 // It normalizes the output of different browsers, 
@@ -60,14 +58,16 @@ import timer from '@longlost/worker/timer.js';
 // https://github.com/chmanie/o9n
 import {orientation} from 'o9n'; 
 
+import {ArMixin} from './ar/ar-mixin.js';
+
 import mime       from 'mime-types';
-import services   from '@longlost/app-shell/services/services.js';
+import services   from '@longlost/app-core/services/services.js';
 import htmlString from './acs-overlay.html';
-import '@longlost/app-icons/app-icons.js';
+import '@longlost/app-core/app-icons.js';
+import '@longlost/app-core/app-shared-styles.js';
 import '@longlost/app-images/flip-image.js';
 import '@longlost/app-images/lazy-image.js';
 import '@longlost/app-overlays/app-overlay.js';
-import '@longlost/app-shared-styles/app-shared-styles.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
 import '@polymer/paper-progress/paper-progress.js';
 import '@polymer/paper-ripple/paper-ripple.js';

@@ -36,8 +36,8 @@
   **/
 
 
-import {AppElement, html}  from '@longlost/app-element/app-element.js';
-import {hijackEvent, warn} from '@longlost/utils/utils.js';
+import {AppElement, html}  from '@longlost/app-core/app-element.js';
+import {hijackEvent, warn} from '@longlost/app-core/utils.js';
 import htmlString          from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '../app-camera-icons.js';

@@ -39,7 +39,7 @@ import {
   privacyPolicyUrl
 } from 'config.js';
 
-import {AppElement, html} from '@longlost/app-element/app-element.js';
+import {AppElement, html} from '@longlost/app-core/app-element.js';
 import htmlString         from './acs-permission-denied-modal.html';
 import '@longlost/app-overlays/app-modal.js';
 import '@polymer/paper-button/paper-button.js';

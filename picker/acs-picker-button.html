@@ -7,13 +7,13 @@
     margin:  4px;
 
     --picker-button-background-color: var(--app-background-color);
-    --picker-button-color:            var(--app-dark-text-color);
+    --picker-button-color:            var(--app-dark-text);
   }
 
   :host([disabled]) #button {
     box-shadow:       none;
     background-color: var(--app-disabled-color);
-    color:            var(--disabled-text-color);
+    color:            var(--app-disabled-text);
   }
   
   #button {
@@ -33,7 +33,7 @@
   /* Keyboard-only focus styles hack. */
   #button:focus > #content {
     outline-offset: -2px;
-    outline:         var(--dark-text-color) solid 2px; 
+    outline:         var(--app-dark-text) solid 2px; 
   }
 
   #content {

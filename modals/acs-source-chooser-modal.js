@@ -34,10 +34,10 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-element/app-element.js';
+import {AppElement, html} from '@longlost/app-core/app-element.js';
 import htmlString         from './acs-source-chooser-modal.html';
+import '@longlost/app-core/app-shared-styles.js';
 import '@longlost/app-overlays/app-modal.js';
-import '@longlost/app-shared-styles/app-shared-styles.js';
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-button/paper-button.js';
 import '../app-camera-icons.js';

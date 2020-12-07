@@ -24,8 +24,8 @@
 
 
 
-import {clamp} 									from '@longlost/lambda/lambda.js';
-import {consumeEvent, schedule} from '@longlost/utils/utils.js';
+import {clamp} 									from '@longlost/app-core/lambda.js';
+import {consumeEvent, schedule} from '@longlost/app-core/utils.js';
 // `pinch-to-zoom` definition is lazy loaded if device zooming is available.
 
 

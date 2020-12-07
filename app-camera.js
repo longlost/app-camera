@@ -10,9 +10,9 @@
   *
   **/
 
-import {AppElement, html}   from '@longlost/app-element/app-element.js';
+import {AppElement, html}   from '@longlost/app-core/app-element.js';
+import {consumeEvent, wait} from '@longlost/app-core/utils.js';
 import {ZoomMixin}          from './zoom-mixin.js';
-import {consumeEvent, wait} from '@longlost/utils/utils.js';
 import htmlString           from './app-camera.html';
 import '@longlost/app-media/app-media-devices.js';
 import '@longlost/app-media/app-media-stream.js';

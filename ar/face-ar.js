@@ -1,6 +1,6 @@
 
 
-import runner       from '@longlost/worker/runner.js';
+import runner       from '@longlost/app-core/worker/runner.js';
 import * as Comlink from 'comlink';
 
 

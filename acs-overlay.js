@@ -76,6 +76,7 @@ import './app-camera-icons.js';
 
 
 class ACSOverlay extends ArMixin(AppElement) {
+
   static get is() { return 'acs-overlay'; }
 
   static get template() {
@@ -203,6 +204,8 @@ class ACSOverlay extends ArMixin(AppElement) {
 
       _ready: Boolean,
 
+      _resizeObserver: Object,
+
       // From `o9n` screen orientation ponyfill.
       // https://github.com/chmanie/o9n
       //
@@ -251,6 +254,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   connectedCallback() {
+
     super.connectedCallback();
 
     this.__getOrientation  = this.__getOrientation.bind(this);
@@ -262,21 +266,28 @@ class ACSOverlay extends ArMixin(AppElement) {
     this._uiTimer = timer();
 
     orientation.addEventListener('change', this.__getOrientation);
-    window.addEventListener(     'resize', this.__resize);
+
+    this._resizeObserver = new window.ResizeObserver(this.__resize);
+
+    this._resizeObserver.observe(this.$.overlay);
   }
 
 
   disconnectedCallback() {
+
     super.disconnectedCallback();
 
     this._uiTimer.stop();
 
     orientation.removeEventListener('change', this.__getOrientation);
-    window.removeEventListener(     'resize', this.__resize);   
+
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = undefined;
   }
 
 
   __computeBtnDisabled(ready) {
+
     return !ready;
   }
 
@@ -296,11 +307,13 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __computeHideArBtn(faceAr) {
+
     return !Boolean(faceAr);
   }
 
 
   __computeHideFlashBtn(fillLightMode) {
+
     if (!fillLightMode || fillLightMode === 'none') { 
       return true; 
     }
@@ -317,16 +330,19 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __computeHideLightingBtns(hideFlash, hideTorch) {
+
     return hideFlash && hideTorch;
   }
 
 
   __computeHideTorchBtn(torch) {
+
     return !Boolean(torch);
   }
 
 
   __computeHideSwitchFaceBtn(facingMode) {
+
     if (!facingMode || facingMode === 'none') {
       return true;
     } 
@@ -343,6 +359,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __computeFlashBtnIcon(flash) {
+
     if (!flash) { return ''; }
 
     if (flash === 'auto') {
@@ -358,6 +375,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __computeFaceBtnIcon(cameraFace) {
+
     if (!cameraFace) { return ''; }
 
     if (cameraFace === 'user') {
@@ -369,6 +387,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __computePreviewClass(placeholder, src) {
+
     if (placeholder || src) {
       return 'shared-card-shadow';
     }
@@ -378,6 +397,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   // Fetch the most recently taken photo to display as a camera roll access ui.
   async __collUserOpenedSrcChanged(coll, user, opened, src) {
+
     try {      
 
       // Unless user has already taken a capture during 
@@ -417,6 +437,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __openedChanged(opened) {
+
     if (opened) {
       this.__getMeasurements();
       this.__startUiTimer();
@@ -439,11 +460,13 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __streamingChanged(streaming) {
+
     this.fire('camera-overlay-streaming-changed', {value: streaming});
   }
 
 
   __getOrientation() {
+
     if (!orientation) { return; }
 
     this._screenOrientation = orientation.type;
@@ -451,6 +474,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __getMeasurements() {
+
     if (!this._opened) { return; }
 
     this._measurements = getBBox(this.$.overlay);
@@ -458,6 +482,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __resize() {
+
     this.__getMeasurements();
 
     await schedule();
@@ -467,6 +492,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __startUiTimer() {
+
     this._uiTimer.start(this._uiIdleTime, this.__uiTimerCallback);
 
     this.$.ui.style['display'] = 'block';
@@ -478,11 +504,13 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __resetHandler() {
+
     this._opened = false;
   }
 
 
   __cameraChangedHandler(event) {
+
     consumeEvent(event);
 
     this._camera = event.detail.value;
@@ -490,6 +518,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __permissionDeniedHandler(event) {
+
     consumeEvent(event);
 
     this.fire('camera-overlay-permission-denied');
@@ -497,6 +526,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __photoCapabilitiesChangedHandler(event) {
+
     consumeEvent(event);
 
     this._photoCapabilities = event.detail.value;
@@ -504,6 +534,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __readyChangedHandler(event) {
+
     consumeEvent(event);
 
     this._ready = event.detail.value;
@@ -511,6 +542,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __streamingChangedHandler(event) {
+
     consumeEvent(event);
 
     this._streaming = event.detail.value;
@@ -518,6 +550,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __trackCapabilitiesChangedHandler(event) {
+
     consumeEvent(event);
 
     this._trackCapabilities = event.detail.value;
@@ -525,11 +558,13 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __uiTimerCallback() {
+
     this.$.ui.classList.add('hide-ui');
   }
 
 
   async __contentClicked() {
+
     try {
       await this.clicked();      
 
@@ -542,7 +577,8 @@ class ACSOverlay extends ArMixin(AppElement) {
   }
 
 
-  __uiTransitionendHandler(event) {    
+  __uiTransitionendHandler(event) {  
+
     consumeEvent(event);
 
     const target = getRootTarget(event);
@@ -561,6 +597,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __srcLoadedHandler(event) {
+
     consumeEvent(event);
 
     const {value: loaded} = event.detail;
@@ -589,6 +626,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   __rippleDoneHandler(event) {
+
     consumeEvent(event);
 
     this._imgRippled = true;
@@ -596,6 +634,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __backBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -609,6 +648,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __flashBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -632,6 +672,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __torchBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -645,6 +686,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __settingsBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -658,6 +700,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __imgClickHandler() {
+
     try {
       await this.clicked();
 
@@ -672,6 +715,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __captureBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -697,6 +741,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
 
   async __switchCameraBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -712,6 +757,7 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   
   async __arBtnClicked() {
+
     try {
       await this.clicked();
 
@@ -731,11 +777,13 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   // Returns a promise that resolves to an ImageBitmap.
   grabFrame() {
+
     return this.$.cam.grabFrame();
   }
 
 
   async open() {
+
     await this.$.overlay.open();
 
     this._opened = true;
@@ -743,17 +791,20 @@ class ACSOverlay extends ArMixin(AppElement) {
 
   // Initialize video stream.
   start() {
+
     this._startCam = true;
   }
 
   // Halt video stream.
   stop() {
+
     this._startCam = false;
     this.$.cam.stop();
   }
 
   // Returns promise that resolves to a Blob Object.
   takePhoto() {
+    
     return this.$.cam.takePhoto();
   }
 

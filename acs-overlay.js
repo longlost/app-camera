@@ -60,8 +60,9 @@ import {orientation} from 'o9n';
 
 import {ArMixin} from './ar/ar-mixin.js';
 
+import {getAll} from '@longlost/app-core/services/services.js';
+
 import mime       from 'mime-types';
-import services   from '@longlost/app-core/services/services.js';
 import htmlString from './acs-overlay.html';
 import '@longlost/app-core/app-icons.js';
 import '@longlost/app-core/app-shared-styles.js';
@@ -404,7 +405,7 @@ class ACSOverlay extends ArMixin(AppElement) {
       // this session (testing for src to be falsey).
       if (coll && user && opened && !src) { 
 
-        const [item] = await services.getAll({
+        const [item] = await getAll({
           coll,
           limit: 1,
           orderBy: {

@@ -47,7 +47,12 @@ import {
   warn
 } from '@longlost/app-core/utils.js';
 
-import services   from '@longlost/app-core/services/services.js';
+import {
+  add, 
+  query, 
+  set
+} from '@longlost/app-core/services/services.js';
+
 import htmlString from './app-camera-system.html';
 import './acs-overlay.js';
 import './search/acs-ar-search-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
@@ -56,6 +61,7 @@ import './settings/acs-settings-overlay.js';
 
 
 class AppCameraSystem extends AppElement {
+  
   static get is() { return 'app-camera-system'; }
 
   static get template() {
@@ -121,6 +127,7 @@ class AppCameraSystem extends AppElement {
 
 
   __computeAlbum(type, uid) {
+
     if (!type || !uid) { return; }
 
     return `albums/${uid}/${type}`;
@@ -128,16 +135,17 @@ class AppCameraSystem extends AppElement {
 
   // Fetch/create the user's photo album.
   async __userOpenedChanged(user, opened) {
+
     try {
 
       if (!user || !opened) { return; }
 
       const coll = `users/${user.uid}/albums`;
 
-      const [albumObj] = await services.query({
+      const [albumObj] = await query({
         coll,
         limit: 1,
-        query: {
+        constraints: {
           comparator: this.albumType,
           field:      'type',
           operator:   '=='
@@ -153,7 +161,7 @@ class AppCameraSystem extends AppElement {
       // so create one and assign it a uid. 
       else {
 
-        const ref = await services.add({
+        const ref = await add({
           coll, 
           data: {
             description: null,
@@ -166,7 +174,7 @@ class AppCameraSystem extends AppElement {
 
         const uid = ref.id;
 
-        await services.set({
+        await set({
           coll,
           doc:   uid,
           data: {uid}
@@ -182,6 +190,7 @@ class AppCameraSystem extends AppElement {
 
 
   __openCameraRollHandler(event) {
+
     hijackEvent(event);
 
     this.openCameraRoll();
@@ -189,6 +198,7 @@ class AppCameraSystem extends AppElement {
 
 
   __openArSearchHandler(event) {
+
     hijackEvent(event);
 
     this.select('#search').open();
@@ -196,6 +206,7 @@ class AppCameraSystem extends AppElement {
 
 
   __openSettingsHandler(event) {
+
     hijackEvent(event);
 
     this.select('#settings').open();
@@ -203,6 +214,7 @@ class AppCameraSystem extends AppElement {
 
   
   async __openPermissionDeniedModalHandler(event) {
+
     hijackEvent(event);
 
     await import(
@@ -215,6 +227,7 @@ class AppCameraSystem extends AppElement {
 
   
   __cameraOpenedChangedHandler(event) {
+
     hijackEvent(event);
 
     const {value: opened} = event.detail;
@@ -226,6 +239,7 @@ class AppCameraSystem extends AppElement {
 
 
   async __saveCaptureHandler(event) {
+
     try {      
       hijackEvent(event);
 
@@ -245,6 +259,7 @@ class AppCameraSystem extends AppElement {
 
 
   __openSourcesHandler(event) {
+
     hijackEvent(event);
 
     this.openSources();
@@ -252,6 +267,7 @@ class AppCameraSystem extends AppElement {
 
   // Rename then forward event from `app-file-system`.
   __filesAddedHandler(event) {
+
     hijackEvent(event);
 
     this.fire('app-camera-system-files-added', event.detail);
@@ -259,6 +275,7 @@ class AppCameraSystem extends AppElement {
 
   // Rename then forward event from `app-file-system`.
   __itemsSavedHandler(event) {
+
     hijackEvent(event);
 
     this.fire('app-camera-system-items-saved', event.detail);
@@ -266,6 +283,7 @@ class AppCameraSystem extends AppElement {
 
 
   __listClosedHandler(event) {
+
     hijackEvent(event);
 
     this.select('#camera')?.start();
@@ -281,6 +299,7 @@ class AppCameraSystem extends AppElement {
 
 
   async __stampTemplate() {
+
     if (this._stamp) { return; }
 
     this._stamp = true;
@@ -301,6 +320,7 @@ class AppCameraSystem extends AppElement {
 
 
   async openCameraRoll() {
+
     try {
 
       // Must be signed in to save photos.
@@ -341,6 +361,7 @@ class AppCameraSystem extends AppElement {
 
 
   async openSelector() {
+
     try {
 
       // Must be signed in to save photos.
@@ -367,6 +388,7 @@ class AppCameraSystem extends AppElement {
 
 
   async openSources() {
+
     try {
 
       // Must be signed in to save photos.

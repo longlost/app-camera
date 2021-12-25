@@ -55,59 +55,66 @@
 </style>
 
 
-<app-header-overlay id="overlay"
-                    prebuilt-animation="from-right"
-                    header-size="1"
-                    reveal-header
-                    title="[[title]]"
-                    on-overlay-reset="__resetHandler">
+<template id="stamper" 
+          is="dom-if" 
+          if="[[_stamp]]" 
+          restamp>
+
+  <app-header-overlay id="overlay"
+                      prebuilt-animation="from-right"
+                      header-size="1"
+                      reveal-header
+                      title="[[title]]"
+                      on-overlay-reset="__resetHandler">
 
 
-  <div id="content" 
-       slot="content">
+    <div id="content" 
+         slot="content">
 
-    <div id="slot-container">
-      <slot id="slot"></slot>
+      <div id="slot-container">
+        <slot id="slot"></slot>
+      </div>
+
+
+      <div id="btns">
+
+        <div class="btn-pair">      
+          <acs-picker-button icon="app-camera-icons:add-a-photo" 
+                             text="Use Camera" 
+                             type="camera" 
+                             on-clicked-rippled="__btnClickedRippledHandler">
+          </acs-picker-button>
+          <acs-picker-button disabled="[[!user]]"
+                             icon="app-camera-icons:camera-roll" 
+                             text="Pick Photo" 
+                             type="picker" 
+                             on-clicked-rippled="__btnClickedRippledHandler">
+          </acs-picker-button>
+        </div>
+
+        <div class="btn-pair">
+          <acs-picker-button disabled="[[!user]]"
+                             icon="app-camera-icons:add-to-photos" 
+                             text="Add Image File" 
+                             type="sources" 
+                             on-clicked-rippled="__btnClickedRippledHandler">
+          </acs-picker-button>
+          <acs-picker-button disabled="[[!user]]"
+                             icon="app-camera-icons:photo-album" 
+                             text="Manage Photos" 
+                             type="roll" 
+                             on-clicked-rippled="__btnClickedRippledHandler">
+          </acs-picker-button>
+        </div>
+
+      </div>
+
     </div>
 
 
-    <div id="btns">
+  </app-header-overlay>
 
-      <div class="btn-pair">      
-        <acs-picker-button icon="app-camera-icons:add-a-photo" 
-                           text="Use Camera" 
-                           type="camera" 
-                           on-clicked-rippled="__btnClickedRippledHandler">
-        </acs-picker-button>
-        <acs-picker-button disabled="[[!user]]"
-                           icon="app-camera-icons:camera-roll" 
-                           text="Pick Photo" 
-                           type="picker" 
-                           on-clicked-rippled="__btnClickedRippledHandler">
-        </acs-picker-button>
-      </div>
-
-      <div class="btn-pair">
-        <acs-picker-button disabled="[[!user]]"
-                           icon="app-camera-icons:add-to-photos" 
-                           text="Add Image File" 
-                           type="sources" 
-                           on-clicked-rippled="__btnClickedRippledHandler">
-        </acs-picker-button>
-        <acs-picker-button disabled="[[!user]]"
-                           icon="app-camera-icons:photo-album" 
-                           text="Manage Photos" 
-                           type="roll" 
-                           on-clicked-rippled="__btnClickedRippledHandler">
-        </acs-picker-button>
-      </div>
-
-    </div>
-
-  </div>
-
-
-</app-header-overlay>
+</template>
 
 
 <app-camera-system id="cameraSystem"

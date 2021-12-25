@@ -36,9 +36,18 @@
   **/
 
 
-import {AppElement, html}  from '@longlost/app-core/app-element.js';
-import {hijackEvent, warn} from '@longlost/app-core/utils.js';
-import htmlString          from './acs-picker-overlay.html';
+import {
+  AppElement, 
+  html
+} from '@longlost/app-core/app-element.js';
+
+import {
+  hijackEvent, 
+  listenOnce, 
+  warn
+} from '@longlost/app-core/utils.js';
+
+import htmlString from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '../app-camera-icons.js';
 import './acs-picker-button.js';
@@ -46,6 +55,7 @@ import './acs-picker-button.js';
 
 
 class ACSPickerOverlay extends AppElement {
+
   static get is() { return 'acs-picker-overlay'; }
 
   static get template() {
@@ -96,7 +106,9 @@ class ACSPickerOverlay extends AppElement {
       _processing: Boolean,
 
       // The most recently selected file item object.
-      _selected: Object
+      _selected: Object,
+
+      _stamp: Boolean
 
     };
   }
@@ -113,31 +125,38 @@ class ACSPickerOverlay extends AppElement {
 
 
   __openedChanged(opened) {
+
     this.fire('acs-picker-overlay-opened-changed', {value: opened});
   }
 
 
   __openedSelectedChanged() {
+
     this._processing = false;
   }
 
 
   __processingChanged(processing) {
+
     this.fire('acs-picker-overlay-processing-changed', {value: processing});
   }
 
 
   __selectedChanged(selected) {
+
     this.fire('acs-picker-overlay-selected-changed', {value: selected});
   }
 
 
   __resetHandler(event) {
+
     this._opened = false;
+    this._stamp  = false;
   }
 
 
   async __btnClickedRippledHandler(event) {
+
     try {
 
       hijackEvent(event);
@@ -178,6 +197,7 @@ class ACSPickerOverlay extends AppElement {
 
 
   __filesAddedHandler(event) {
+
     hijackEvent(event);
 
     if (!this._opened) { return; }
@@ -187,6 +207,7 @@ class ACSPickerOverlay extends AppElement {
 
 
   __itemSelectedHandler(event) {
+
     hijackEvent(event);
 
     this._selected = event.detail.item;
@@ -194,6 +215,7 @@ class ACSPickerOverlay extends AppElement {
 
 
   __itemsSavedHandler(event) {
+
     hijackEvent(event);
 
     if (!this._opened) { return; }
@@ -208,7 +230,12 @@ class ACSPickerOverlay extends AppElement {
 
 
   async open() {
-    await this.$.overlay.open();
+
+    this._stamp = true;
+
+    await listenOnce(this.$.stamper, 'dom-change');
+
+    await this.select('#overlay').open();
 
     this._opened = true;
   }

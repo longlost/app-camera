@@ -333,7 +333,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openList();
 
-      this.select('#camera')?.stop();
+      this.select('#camera')?.stop?.();
 
       this._opened = true;
     }
@@ -360,6 +360,32 @@ class AppCameraSystem extends AppElement {
   }
 
 
+  async openEditor(item) {
+
+    try {
+
+      // Must be signed in to save photos.
+      if (!this.user) { throw new Error('User MUST be signed in to edit photos!'); }
+
+      await import(
+        /* webpackChunkName: 'app-file-system' */ 
+        '@longlost/app-file-system/app-file-system.js'
+      );
+
+      await this.$.fs.openEditor(item);
+
+      this.select('#camera')?.stop?.();
+
+      this._opened = true;
+    }
+    catch (error) {
+      console.error(error);
+
+      warn('Sorry! Could not open the file browser.');
+    }
+  }
+
+
   async openSelector() {
 
     try {
@@ -374,7 +400,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openSelector();
 
-      this.select('#camera')?.stop();
+      this.select('#camera')?.stop?.();
 
       this._opened         = true;
       this._selectorOpened = true;
@@ -401,7 +427,7 @@ class AppCameraSystem extends AppElement {
 
       await this.$.fs.openSources();
 
-      this.select('#camera')?.stop();
+      this.select('#camera')?.stop?.();
 
       this._opened = true;
     }

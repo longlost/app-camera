@@ -240,6 +240,17 @@ class ACSPickerOverlay extends AppElement {
     this._opened = true;
   }
 
+
+  async openEditor(item) {
+
+    await import(
+      /* webpackChunkName: 'app-camera-system' */ 
+      '../app-camera-system.js'
+    );
+
+    return this.$.cameraSystem.openEditor(item);
+  }
+
 }
 
 window.customElements.define(ACSPickerOverlay.is, ACSPickerOverlay);

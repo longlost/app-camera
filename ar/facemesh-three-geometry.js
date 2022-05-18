@@ -2,8 +2,8 @@
 // From https://github.com/spite/FaceMeshFaceGeometry/js/face.js
 
 import {
-	FACES as indices, 
-	UVS   as texCoords
+  FACES as indices, 
+  UVS   as texCoords
 } from './face-geometry.js';
 
 import {
@@ -12,7 +12,7 @@ import {
   Vector3,
   Triangle,
   Matrix4,
-} from 'three/build/three.module.js';
+} from 'three';
 
 
 class FaceMeshFaceGeometry extends BufferGeometry {
@@ -23,21 +23,21 @@ class FaceMeshFaceGeometry extends BufferGeometry {
     this.useVideoTexture = options.useVideoTexture || false;
     this.normalizeCoords = options.normalizeCoords || false;
 
-    this.flipped 	 = false;
+    this.flipped   = false;
     this.positions = new Float32Array(468 * 3);
-    this.uvs 			 = new Float32Array(468 * 2);
+    this.uvs       = new Float32Array(468 * 2);
 
     this.setAttribute('position', new BufferAttribute(this.positions, 3));
-    this.setAttribute('uv', 			new BufferAttribute(this.uvs, 			2));
+    this.setAttribute('uv',       new BufferAttribute(this.uvs,       2));
 
     this.setUvs();
     this.setIndex(indices);
     this.computeVertexNormals();
     this.applyMatrix4(new Matrix4().makeScale(10, 10, 10));
 
-    this.p0 			= new Vector3();
-    this.p1 			= new Vector3();
-    this.p2 			= new Vector3();
+    this.p0       = new Vector3();
+    this.p1       = new Vector3();
+    this.p2       = new Vector3();
     this.triangle = new Triangle();
   }
 
@@ -46,7 +46,7 @@ class FaceMeshFaceGeometry extends BufferGeometry {
 
     for (let j = 0; j < 468; j++) {
 
-      this.uvs[j * 2] 		= this.flipped ? 1 - texCoords[j][0] : texCoords[j][0];
+      this.uvs[j * 2]     = this.flipped ? 1 - texCoords[j][0] : texCoords[j][0];
       this.uvs[j * 2 + 1] = 1 - texCoords[j][1];
     }
 

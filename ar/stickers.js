@@ -25,7 +25,7 @@ import {
   Scene,
   SpotLight,
   WebGLRenderer
-} from 'three/build/three.module.js';
+} from 'three';
 
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 

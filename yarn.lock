@@ -1994,14 +1994,14 @@
     scroll-behavior-polyfill "^2.0.13"
     workbox-window "^6.4.2"
 
-"@longlost/app-core@^7.0.5":
-  version "7.0.5"
-  resolved "https://registry.yarnpkg.com/@longlost/app-core/-/app-core-7.0.5.tgz#d540089f19e5e197bc31f1d0fc910deaccb826f1"
-  integrity sha512-FAj8EAFfFrAZxZONhx8ZD3fxQ62RadDY+x+WadUwmCrPM8iuJAIfdPPzWVYBi4wBGTDHYJbKI6df1LDcT9WjEg==
+"@longlost/app-core@^7.0.6":
+  version "7.0.6"
+  resolved "https://registry.yarnpkg.com/@longlost/app-core/-/app-core-7.0.6.tgz#c3c599e7354f412bad139e422c44bcc3b871d08e"
+  integrity sha512-dgvA9/xlBUfyccPocj/JeQJDMIJl66xwviIW8jsCPSJiF1WluFgpa2zWyz+Z+CNoJHU0LHttvqqPwfBW0SulUQ==
   dependencies:
     "@polymer/iron-iconset-svg" "^3.0.1"
     "@polymer/paper-styles" "^3.0.1"
-    "@polymer/polymer" "^3.4.1"
+    "@polymer/polymer" "^3.5.0"
     "@ungap/global-this" "^0.4.4"
     comlink "^4.3.1"
     firebase "^9.8.1"
@@ -2254,6 +2254,11 @@
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@longlost/webgl-filter/-/webgl-filter-1.0.0.tgz#200d28f8b50d93b02d491626c27feab853978f74"
   integrity sha512-OSJ3nfQvNx4r4dcdAwTKlpebLyI7ggwySGTGzYUj1KV9JQpayR70QY4jl2eYhSDXTX8wKNfK/Oez4+UF1NfvRQ==
+
+"@mediapipe/face_mesh@^0.4.1633559619":
+  version "0.4.1633559619"
+  resolved "https://registry.yarnpkg.com/@mediapipe/face_mesh/-/face_mesh-0.4.1633559619.tgz#f917e4448e25bc375a905d1d910f1bca450c5e23"
+  integrity sha512-Vc8cdjxS5+O2gnjWH9KncYpUCVXT0h714KlWAsyqJvJbIgUJBqpppbIx8yWcAzBDxm/5cYSuBI5p5ySIPxzcEg==
 
 "@polymer/app-layout@^3.1.0":
   version "3.1.0"
@@ -2757,6 +2762,13 @@
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/@polymer/polymer/-/polymer-3.4.1.tgz#333bef25711f8411bb5624fb3eba8212ef8bee96"
   integrity sha512-KPWnhDZibtqKrUz7enIPOiO4ZQoJNOuLwqrhV2MXzIt3VVnUVJVG5ORz4Z2sgO+UZ+/UZnPD0jqY+jmw/+a9mQ==
+  dependencies:
+    "@webcomponents/shadycss" "^1.9.1"
+
+"@polymer/polymer@^3.5.0":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@polymer/polymer/-/polymer-3.5.0.tgz#e2f35c9e8a03137de38c7fb608498b05c004f3c6"
+  integrity sha512-0OyN+LQ68tudbWYm7BeU4WELiqXvRn1HIpSnW0u7iFTdxJakJGLehh7PFgKL1noe9a0HHSKznQIfz+hMxzgBtA==
   dependencies:
     "@webcomponents/shadycss" "^1.9.1"
 

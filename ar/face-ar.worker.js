@@ -5,6 +5,7 @@ import * as tf                     from '@tensorflow/tfjs-core';
 import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection';
 import '@tensorflow/tfjs-backend-cpu';
 import '@tensorflow/tfjs-backend-webgl';
+import '@mediapipe/face_mesh';
 
 
 const DEFAULT_WIDTH  = 640;
@@ -16,7 +17,7 @@ const bitmapOffscreenCtx    = bitmapOffscreenCanvas.getContext('2d');
 
 let canvas;
 let context;
-let model;
+let detector;
 let renderer;
 let resizer;
 let setFaceMask;
@@ -40,7 +41,7 @@ const bitmapToCanvas = bitmap => {
 
 // Use for dev/testing only!
 // Draw every keypoint to the visible canvas.
-const drawFullMeshPoints = predictions => {
+const drawFullMeshPoints = faces => {
 
   context.clearRect(0, 0, canvas.width, canvas.height); 
 
@@ -48,8 +49,8 @@ const drawFullMeshPoints = predictions => {
   context.strokeStyle = '#32EEDB';
   context.lineWidth   = 0.5;
 
-  predictions.forEach(prediction => {
-    const keypoints = prediction.scaledMesh;
+  faces.forEach(face => {
+    const keypoints = face.scaledMesh;
     
     for (let i = 0; i < keypoints.length; i++) {
       const x = keypoints[i][0];
@@ -110,13 +111,44 @@ const init = async ({offscreencanvas}, options = {}) => {
 
   await tf.setBackend('webgl');
 
-  model = await faceLandmarksDetection.load(
-    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh, 
-    {
-      maxFaces: 1, // 10 max.
-      ...options
-    }
-  );
+  const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
+
+  // Detector config:
+  //
+  //    runtime: Must set to be 'tfjs'.
+  //
+  //    maxFaces: Defaults to 1. Max 10.
+  //              The maximum number of faces that will be detected by the model. 
+  //              The number of returned faces can be less than the maximum 
+  //                (for example when no faces are present in the input). 
+  //              It is highly recommended to set this value to the expected max 
+  //                number of faces, otherwise the model will continue to search 
+  //                for the missing faces which can slow down the performance.
+  //
+  //    refineLandmarks: Defaults to false. 
+  //                     If set to true, refines the landmark coordinates around the eyes 
+  //                       and lips, and output additional landmarks around the irises.
+  //
+  //    detectorModelUrl: An optional string that specifies custom url of the detector model. 
+  //                      This is useful for area/countries that don't have access to the 
+  //                        model hosted on tf.hub. 
+  //                      It also accepts io.IOHandler which can be used with 
+  //                        tfjs-react-native to load model from app bundle directory using 
+  //                        bundleResourceIO.
+  //
+  //    landmarkModelUrl: An optional string that specifies custom url of the landmark model. 
+  //                      This is useful for area/countries that don't have access to the 
+  //                        model hosted on tf.hub. 
+  //                      It also accepts io.IOHandler which can be used with 
+  //                        tfjs-react-native to load model from app bundle directory using 
+  //                        bundleResourceIO.
+  const config = {
+    runtime:        'tfjs',
+    refineLandmarks: true,
+    ...options
+  };
+
+  detector = await faceLandmarksDetection.createDetector(model, config);
 };
 
 
@@ -124,13 +156,12 @@ const predict = async ({frame}, mirror) => {
 
   const bitmapCanvas = bitmapToCanvas(frame);
 
-  const predictions = await model.estimateFaces({
-    input:          bitmapCanvas, 
+  const faces = await detector.estimateFaces(bitmapCanvas, {
     flipHorizontal: mirror
   });
 
-  if (predictions.length > 0) {
-    renderer(predictions);
+  if (faces.length > 0) {
+    renderer(faces);
   }
 };
 

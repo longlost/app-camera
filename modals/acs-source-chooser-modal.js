@@ -36,7 +36,7 @@
 
 import {AppElement, html} from '@longlost/app-core/app-element.js';
 import htmlString         from './acs-source-chooser-modal.html';
-import '@longlost/app-core/app-shared-styles.js';
+import '@longlost/app-core/app-shared-styles.css';
 import '@longlost/app-overlays/app-modal.js';
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-button/paper-button.js';
@@ -44,6 +44,7 @@ import '../app-camera-icons.js';
 
 
 class ACSSourceChooserModal extends AppElement {
+
   static get is() { return 'acs-source-chooser-modal'; }
 
   static get template() {
@@ -52,6 +53,7 @@ class ACSSourceChooserModal extends AppElement {
 
 
   async __modalClicked(event) {
+
     try {
       await this.clicked();
       await this.$.modal.close();
@@ -64,6 +66,7 @@ class ACSSourceChooserModal extends AppElement {
 
 
   async __cameraBtnClicked(event) {
+
     try {
       await this.clicked();
       await this.$.modal.close();
@@ -78,6 +81,7 @@ class ACSSourceChooserModal extends AppElement {
 
 
   async __browseBtnClicked(event) {
+
     try {
       await this.clicked();
       await this.$.modal.close();
@@ -92,10 +96,10 @@ class ACSSourceChooserModal extends AppElement {
 
 
   open() {
+
     return this.$.modal.open();
   }
 
 }
 
 window.customElements.define(ACSSourceChooserModal.is, ACSSourceChooserModal);
-

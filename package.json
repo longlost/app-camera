@@ -1,6 +1,6 @@
 {
   "name": "@longlost/app-camera",
-  "version": "1.20.2",
+  "version": "1.20.3",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
   "scripts": {

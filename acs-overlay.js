@@ -65,7 +65,7 @@ import {getAll} from '@longlost/app-core/services/services.js';
 import mime       from 'mime-types';
 import htmlString from './acs-overlay.html';
 import '@longlost/app-core/app-icons.js';
-import '@longlost/app-core/app-shared-styles.js';
+import '@longlost/app-core/app-shared-styles.css';
 import '@longlost/app-images/flip-image.js';
 import '@longlost/app-images/lazy-image.js';
 import '@longlost/app-overlays/app-overlay.js';

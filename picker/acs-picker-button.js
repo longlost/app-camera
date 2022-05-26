@@ -37,13 +37,14 @@
 import {AppElement, html} from '@longlost/app-core/app-element.js';
 import {consumeEvent}     from '@longlost/app-core/utils.js';
 import htmlString         from './acs-picker-button.html';
-import '@longlost/app-core/app-shared-styles.js';
+import '@longlost/app-core/app-shared-styles.css';
 import '@polymer/iron-a11y-keys/iron-a11y-keys.js';
 import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-ripple/paper-ripple.js';
 
 
 class ACSPickerButton extends AppElement {
+
   static get is() { return 'acs-picker-button'; }
 
   static get template() {
@@ -87,6 +88,7 @@ class ACSPickerButton extends AppElement {
 
 
   connectedCallback() {
+
     super.connectedCallback();
 
     this.$.a11y.target = this.$.button;
@@ -94,11 +96,13 @@ class ACSPickerButton extends AppElement {
 
 
   __computeTabindex(disabled) {
+
     return disabled ? '-1' : '0';
   }
 
 
   __a11yKeysPressed(event) {
+
     consumeEvent(event);
     
     const {key} = event.detail.keyboardEvent;
@@ -121,6 +125,7 @@ class ACSPickerButton extends AppElement {
 
 
   __rippleDoneHandler(event) {
+
     consumeEvent(event);
 
     this._rippled = true;
@@ -128,6 +133,7 @@ class ACSPickerButton extends AppElement {
 
 
   async __btnClicked() {
+    
     try {
 
       if (this.disabled) { return; }

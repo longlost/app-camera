@@ -68,6 +68,7 @@ export const ArMixin = superClass => {
 
 
 	  connectedCallback() {
+
 	    super.connectedCallback();	    
 
     	this._offscreencanvas = this.$.offscreencanvas;
@@ -90,6 +91,7 @@ export const ArMixin = superClass => {
 
 
 	  __resetAR() {
+
 	  	this._arInitialized 		 = false;
 	  	this._arReady            = false;
 	  	this._arLoading 	 			 = false;
@@ -101,6 +103,7 @@ export const ArMixin = superClass => {
 
 
 	  async __faceArOpenedOffscreenCanvasChanged(faceAr, opened, canvas) {
+	  	
 	    if (!faceAr || !opened || !canvas) { return; }
 
 	    try {

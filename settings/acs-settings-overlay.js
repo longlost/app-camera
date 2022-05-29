@@ -32,17 +32,18 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-core/app-element.js';
-import {hijackEvent}      from '@longlost/app-core/utils.js';
-import htmlString         from './acs-settings-overlay.html';
+import {AppElement}  from '@longlost/app-core/app-element.js';
+import {hijackEvent} from '@longlost/app-core/utils.js';
+import template      from './acs-settings-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 
 
 class ACSSettingsOverlay extends AppElement {
+
   static get is() { return 'acs-settings-overlay'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 
@@ -63,6 +64,7 @@ class ACSSettingsOverlay extends AppElement {
 
 
   __openedChanged(opened) {
+
     if (opened) {
 
     }
@@ -70,11 +72,13 @@ class ACSSettingsOverlay extends AppElement {
 
 
   __overlayResetHandler(event) {
+
     this._opened = false;
   }
   
 
   async open() {
+    
     await this.$.overlay.open();
 
     this._opened = true;

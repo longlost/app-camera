@@ -34,10 +34,7 @@
   **/
 
 
-import {
-  AppElement, 
-  html
-} from '@longlost/app-core/app-element.js';
+import {AppElement} from '@longlost/app-core/app-element.js';
 
 import {
   hijackEvent,
@@ -53,7 +50,7 @@ import {
   set
 } from '@longlost/app-core/services/services.js';
 
-import htmlString from './app-camera-system.html';
+import template from './app-camera-system.html';
 import './acs-overlay.js';
 import './search/acs-ar-search-overlay.js'; // Not lazy loading as it may kill stream on iOS Safari App mode.
 import './settings/acs-settings-overlay.js';
@@ -65,7 +62,7 @@ class AppCameraSystem extends AppElement {
   static get is() { return 'app-camera-system'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 

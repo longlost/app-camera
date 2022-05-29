@@ -94,11 +94,13 @@ export const ZoomMixin = superClass => {
 
 
 	  __computeCanZoom(photoZoom, trackZoom) {
+
 	    return Boolean(photoZoom || trackZoom);
 	  }
 
 
 	  __computeClamper(min, max) {
+
 	    if (min === undefined || max === undefined) { return; }
 
 	    return clamp(min, max);
@@ -106,12 +108,14 @@ export const ZoomMixin = superClass => {
 
 
 	  __computeCurrentZoom(val) {
+
 	    return val;
 	  }
 
 	  // Conflicting documentation on which set of capabilities
 	  // determins zooming, so use which ever one is present.
 	  __computeZoomMax(currentZoom, photoZoom, trackZoom) {
+
 	    if (typeof currentZoom !== 'number') { return; }
 
 	    if (trackZoom) {
@@ -136,6 +140,7 @@ export const ZoomMixin = superClass => {
 	  // Conflicting documentation on which set of capabilities
 	  // determines zooming, so use which ever one is present.
 	  __computeZoomMin(currentZoom, photoZoom, trackZoom) {
+
 	    if (typeof currentZoom !== 'number') { return; }
 
 	    if (trackZoom) {
@@ -173,11 +178,13 @@ export const ZoomMixin = superClass => {
 
 
 	  __photoCapabilitiesChanged(capabilities) {
+
 	  	this.fire('app-camera-photo-capabilities-changed', {value: capabilities});
 	  }
 
 
 	  __trackCapabilitiesChanged(capabilities) {
+
 	  	this.fire('app-camera-track-capabilities-changed', {value: capabilities});
 	  }
 
@@ -189,6 +196,7 @@ export const ZoomMixin = superClass => {
 	  // the new `_zoom` value. Clamp the output according to 
 	  // the photo and track capabilities.
 	  __scaleChanged(newScale, oldScale = 1) {
+
 	    if (typeof this._clamper !== 'function') { return; }
 
 	    if (typeof newScale !== 'number') { return; }
@@ -204,6 +212,7 @@ export const ZoomMixin = superClass => {
 
 
 	  __setupPinchToZoom() {
+
 	    this.$.pinchToZoom.setTransform({
 	      scale: 1,
 	      x:     0,
@@ -214,6 +223,7 @@ export const ZoomMixin = superClass => {
 
 
 	  __photoCapabilitiesChangedHandler(event) {
+
 	    consumeEvent(event);
 
 	    this._photoCapabilities = event.detail.value;
@@ -221,6 +231,7 @@ export const ZoomMixin = superClass => {
 
 
 	  __trackCapabilitiesChangedHandler(event) {
+
 	    consumeEvent(event);
 
 	    this._trackCapabilities = event.detail.value;
@@ -228,6 +239,7 @@ export const ZoomMixin = superClass => {
 
 
 	  async __pinchToZoomChangeHandler(event) {
+
 	    consumeEvent(event);
 
 	    await schedule();
@@ -238,8 +250,7 @@ export const ZoomMixin = superClass => {
 	    if (delta < 1.75) { return; }
 
 	    this._scale = event.detail.scale;
-	  }
-	 
+	  }	 
 
   };
 };

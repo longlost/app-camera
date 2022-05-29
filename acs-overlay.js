@@ -34,10 +34,7 @@
   **/
 
 
-import {
-  AppElement, 
-  html
-} from '@longlost/app-core/app-element.js';
+import {AppElement} from '@longlost/app-core/app-element.js';
 
 import {blobToFile} from '@longlost/app-core/lambda.js';
 
@@ -62,8 +59,8 @@ import {ArMixin} from './ar/ar-mixin.js';
 
 import {getAll} from '@longlost/app-core/services/services.js';
 
-import mime       from 'mime-types';
-import htmlString from './acs-overlay.html';
+import mime     from 'mime-types';
+import template from './acs-overlay.html';
 import '@longlost/app-core/app-icons.js';
 import '@longlost/app-core/app-shared-styles.css';
 import '@longlost/app-images/flip-image.js';
@@ -81,7 +78,7 @@ class ACSOverlay extends ArMixin(AppElement) {
   static get is() { return 'acs-overlay'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 

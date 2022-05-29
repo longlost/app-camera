@@ -10,10 +10,10 @@
   *
   **/
 
-import {AppElement, html}   from '@longlost/app-core/app-element.js';
+import {AppElement}         from '@longlost/app-core/app-element.js';
 import {consumeEvent, wait} from '@longlost/app-core/utils.js';
 import {ZoomMixin}          from './zoom-mixin.js';
-import htmlString           from './app-camera.html';
+import template             from './app-camera.html';
 import '@longlost/app-media/app-media-devices.js';
 import '@longlost/app-media/app-media-stream.js';
 import '@longlost/app-media/app-media-video.js';
@@ -23,6 +23,7 @@ import '@longlost/app-media/app-media-image-capture.js';
 // Flip a photographic blob horizontally about its center axis.
 // Corrects for 'user' facing camera.
 const createMirroredImage = blob => {  
+
   const canvas = document.createElement('canvas');
   const ctx    = canvas.getContext('2d');
   const img    = new Image();
@@ -62,10 +63,11 @@ const createMirroredImage = blob => {
 
 
 class AppCamera extends ZoomMixin(AppElement) {
+
   static get is() { return 'app-camera'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 
@@ -158,6 +160,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   constructor() {
+
     super();
 
     if (this.defaultCamera === 'user' || this.defaultCamera === 'environment') {
@@ -167,6 +170,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __computeMirror(face) {
+
     if (face === 'environment') {
       return false;
     }
@@ -176,6 +180,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __computeVideoConstraints(face, constraints = {}) {
+
     if (!face) { 
       return {...constraints, facingMode: 'user'}; 
     }
@@ -185,16 +190,19 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __cameraChanged(camera) {
+
     this.fire('app-camera-changed', {value: camera});
   }
 
 
   __readyChanged(ready) {
+
     this.fire('app-camera-ready-changed', {value: ready});
   }
 
 
   __devicesChangedHandler(event) {
+
     consumeEvent(event);
 
     this._devices = event.detail.value;
@@ -202,6 +210,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __devicesSelectedChangedHandler(event) {
+
     consumeEvent(event);
 
     // Ignore the initial value since it is
@@ -218,6 +227,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __trackConstraintsChangedHandler(event) {
+
     consumeEvent(event);
 
     this._trackConstraints = event.detail.value;
@@ -225,6 +235,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __streamErrorHandler(event) {
+
     consumeEvent(event);
 
     const {value} = event.detail;
@@ -234,6 +245,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __streamChangedHandler(event) {
+
     consumeEvent(event);
 
     const {value: stream} = event.detail;
@@ -254,6 +266,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __streamPermissionDeniedHandler(event) {
+
     consumeEvent(event);
 
     this.fire('app-camera-permission-denied');
@@ -262,6 +275,7 @@ class AppCamera extends ZoomMixin(AppElement) {
   // `_trackSettings` is currently only used by `ZoomMixin`,
   // but this method is kept here for future use.
   __videoTrackChangedHandler(event) {
+
     consumeEvent(event);
 
     const {value: track} = event.detail;    
@@ -270,6 +284,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   __sourceChangedHandler(event) {
+
     consumeEvent(event);
 
     this.fire('app-camera-source-changed', event.detail);
@@ -277,6 +292,7 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   async __metadataLoadedHandler(event) {
+
     consumeEvent(event);
 
     this.$.video.classList.add('show');
@@ -291,6 +307,7 @@ class AppCamera extends ZoomMixin(AppElement) {
   // No camera settings options, such as flash or redeye reduction,
   // will be available for polyfilled browsers.
   __takePhotoSafariVideoFeedFreezeFix() {
+
     const videoEl         = this.select('video', this.$.video);
     const {height, width} = videoEl.getBoundingClientRect();
 
@@ -324,21 +341,25 @@ class AppCamera extends ZoomMixin(AppElement) {
 
 
   getVideoMeasurements() {
+
     return this.select('video', this.$.video).getBoundingClientRect();
   }
 
   // Returns a promise that resolves to an ImageBitmap.
   grabFrame() {
+
     return this.$.capture.grabFrame();
   }
 
 
   start() {
+
     this._active = true;
   }
 
 
   stop() {
+    
     this._active = false;
   }
 

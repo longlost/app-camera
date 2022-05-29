@@ -1,6 +1,6 @@
 {
   "name": "@longlost/app-camera",
-  "version": "1.20.3",
+  "version": "1.20.4",
   "description": "controls accessing and displaying the camera capture feed. Adds ui controls for taking photo captures and adjusting camera settings",
   "main": "app-camera.js",
   "scripts": {
@@ -17,14 +17,14 @@
   },
   "homepage": "https://github.com/longlost/app-camera#readme",
   "dependencies": {
-    "@longlost/app-core": "^8.0.0",
-    "@longlost/app-file-system": "^2.6.2",
-    "@longlost/app-images": "^2.2.3",
-    "@longlost/app-media": "^2.1.1",
-    "@longlost/app-overlays": "^2.0.1",
-    "@longlost/app-spinner": "^1.2.1",
-    "@longlost/pinch-to-zoom": "^1.1.2",
-    "@longlost/tab-pages": "^1.2.3",
+    "@longlost/app-core": "^9.0.1",
+    "@longlost/app-file-system": "^2.6.3",
+    "@longlost/app-images": "^2.2.4",
+    "@longlost/app-media": "^2.1.2",
+    "@longlost/app-overlays": "^2.0.2",
+    "@longlost/app-spinner": "^1.2.2",
+    "@longlost/pinch-to-zoom": "^1.1.3",
+    "@longlost/tab-pages": "^1.2.4",
     "@mediapipe/face_mesh": "^0.4.1633559619",
     "@polymer/iron-icon": "^3.0.1",
     "@polymer/iron-iconset-svg": "^3.0.1",
@@ -39,7 +39,7 @@
     "comlink": "^4.3.1",
     "mime-types": "^2.1.35",
     "o9n": "^2.1.1",
-    "three": "^0.140.2"
+    "three": "^0.141.0"
   },
   "devDependencies": {
     "@polymer/iron-demo-helpers": "^3.1.0",

@@ -32,9 +32,9 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-core/app-element.js';
-import {hijackEvent}      from '@longlost/app-core/utils.js';
-import htmlString         from './acs-ar-search-overlay.html';
+import {AppElement}  from '@longlost/app-core/app-element.js';
+import {hijackEvent} from '@longlost/app-core/utils.js';
+import template      from './acs-ar-search-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '@longlost/app-spinner/app-spinner.js';
 import '@longlost/tab-pages/tab-pages.js';
@@ -43,10 +43,11 @@ import '@polymer/paper-tabs/paper-tab.js';
 
 
 class ACSARSearchOverlay extends AppElement {
+
   static get is() { return 'acs-ar-search-overlay'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 
@@ -82,6 +83,7 @@ class ACSARSearchOverlay extends AppElement {
 
 
   __openedChanged(opened) {
+
     if (opened) {
 
       if (!this._initialTab) {
@@ -93,11 +95,13 @@ class ACSARSearchOverlay extends AppElement {
 
 
   __overlayResetHandler(event) {
+
     this._opened = false;
   }
 
   // `paper-tabs` on-selected-changed handler.
   __selectedPageChangedHandler(event) {
+
     hijackEvent(event);
 
     this._selectedPage = event.detail.value;
@@ -105,6 +109,7 @@ class ACSARSearchOverlay extends AppElement {
 
   // `tab-pages` on-page-changed handler.
   __tabPageChangedHandler(event) {
+
     hijackEvent(event);
 
     this._currentPage = event.detail.value;
@@ -112,6 +117,7 @@ class ACSARSearchOverlay extends AppElement {
 
 
   __hideSpinnerHandler(event) {
+
     hijackEvent(event);
 
     this.$.spinner.hide();
@@ -119,6 +125,7 @@ class ACSARSearchOverlay extends AppElement {
 
 
   __showSpinnerHandler(event) {
+
     hijackEvent(event);
 
     this.$.spinner.show();
@@ -126,6 +133,7 @@ class ACSARSearchOverlay extends AppElement {
   
 
   async open() {
+    
     await this.$.overlay.open();
 
     this._opened = true;

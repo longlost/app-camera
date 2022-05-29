@@ -34,9 +34,9 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-core/app-element.js';
-import {consumeEvent}     from '@longlost/app-core/utils.js';
-import htmlString         from './acs-picker-button.html';
+import {AppElement}   from '@longlost/app-core/app-element.js';
+import {consumeEvent} from '@longlost/app-core/utils.js';
+import template       from './acs-picker-button.html';
 import '@longlost/app-core/app-shared-styles.css';
 import '@polymer/iron-a11y-keys/iron-a11y-keys.js';
 import '@polymer/iron-icon/iron-icon.js';
@@ -48,7 +48,7 @@ class ACSPickerButton extends AppElement {
   static get is() { return 'acs-picker-button'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 

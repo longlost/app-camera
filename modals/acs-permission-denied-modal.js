@@ -39,17 +39,19 @@ import {
   privacyPolicyUrl
 } from 'config.js';
 
-import {AppElement, html} from '@longlost/app-core/app-element.js';
-import htmlString         from './acs-permission-denied-modal.html';
+import {AppElement} from '@longlost/app-core/app-element.js';
+
+import template from './acs-permission-denied-modal.html';
 import '@longlost/app-overlays/app-modal.js';
 import '@polymer/paper-button/paper-button.js';
 
 
 class ACSPermissionDeniedModal extends AppElement {
+
   static get is() { return 'acs-permission-denied-modal'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 
@@ -65,6 +67,7 @@ class ACSPermissionDeniedModal extends AppElement {
 
 
   constructor() {
+
     super();
 
     this._appCameraPermissionDenied = appCameraPermissionDenied;
@@ -73,6 +76,7 @@ class ACSPermissionDeniedModal extends AppElement {
 
 
   async __dismissHandler() {
+
     try {
       await this.clicked();
       await this.$.modal.close();
@@ -85,10 +89,10 @@ class ACSPermissionDeniedModal extends AppElement {
 
 
   open() {
+
     return this.$.modal.open();
   }
 
 }
 
 window.customElements.define(ACSPermissionDeniedModal.is, ACSPermissionDeniedModal);
-

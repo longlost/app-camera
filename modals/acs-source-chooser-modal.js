@@ -34,8 +34,8 @@
   **/
 
 
-import {AppElement, html} from '@longlost/app-core/app-element.js';
-import htmlString         from './acs-source-chooser-modal.html';
+import {AppElement} from '@longlost/app-core/app-element.js';
+import template     from './acs-source-chooser-modal.html';
 import '@longlost/app-core/app-shared-styles.css';
 import '@longlost/app-overlays/app-modal.js';
 import '@polymer/iron-icon/iron-icon.js';
@@ -48,7 +48,7 @@ class ACSSourceChooserModal extends AppElement {
   static get is() { return 'acs-source-chooser-modal'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 

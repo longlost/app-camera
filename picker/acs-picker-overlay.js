@@ -36,10 +36,7 @@
   **/
 
 
-import {
-  AppElement, 
-  html
-} from '@longlost/app-core/app-element.js';
+import {AppElement} from '@longlost/app-core/app-element.js';
 
 import {
   hijackEvent, 
@@ -47,7 +44,7 @@ import {
   warn
 } from '@longlost/app-core/utils.js';
 
-import htmlString from './acs-picker-overlay.html';
+import template from './acs-picker-overlay.html';
 import '@longlost/app-overlays/app-header-overlay.js';
 import '../app-camera-icons.js';
 import './acs-picker-button.js';
@@ -59,7 +56,7 @@ class ACSPickerOverlay extends AppElement {
   static get is() { return 'acs-picker-overlay'; }
 
   static get template() {
-    return html([htmlString]);
+    return template;
   }
 
 
